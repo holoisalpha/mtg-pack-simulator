@@ -13,7 +13,6 @@ A web-based Magic: The Gathering pack opening simulator supporting early MTG set
 
 ## Files
 ```
-/Users/danielrein/Downloads/
 ├── index.html      - Main HTML structure
 ├── styles.css      - All styling, animations, responsive design
 ├── game.js         (~4MB) - Game logic, card data, embedded pack images
