@@ -1111,7 +1111,7 @@ function getCurrentSetConfig() {
       
       if (USE_CARD_ART) {
         // Art mode: Use Scryfall images
-        const version = size === 'mini' ? 'small' : 'normal';
+        const version = 'normal'; // Always use high-res for quality on hover/zoom
         const imgUrl = `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card.name)}&set=${currentSetCode}&format=image&version=${version}`;
         
         div.className = size === 'mini' ? 'mini-card card-img' : `card-img ${animClass}`.trim();
