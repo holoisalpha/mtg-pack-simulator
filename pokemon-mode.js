@@ -193,6 +193,10 @@ function openPokemonProduct() {
     const boxContainer = document.getElementById('pokemonBoxContainer');
     if (boxContainer) {
       boxContainer.style.display = 'flex';
+      // Auto-scroll to box
+      setTimeout(() => {
+        boxContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
     document.getElementById('openBtn').disabled = true;
     document.getElementById('skipBtn').disabled = false;
@@ -218,6 +222,10 @@ function openPokemonProduct() {
   const packContainer = document.getElementById('pokemonPackContainer');
   if (packContainer) {
     packContainer.style.display = 'flex';
+    // Auto-scroll to pack
+    setTimeout(() => {
+      packContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   }
 
   document.getElementById('openBtn').disabled = true;
@@ -363,7 +371,13 @@ function skipPokemonPack() {
 
 function updatePokemonCollection() {
   const collCount = document.getElementById('pokemonCollCount');
+  const collectionSection = document.getElementById('pokemonCollectionSection');
   const entries = Object.values(pokemonCollection);
+
+  // Hide collection when empty, show when there are cards
+  if (collectionSection) {
+    collectionSection.style.display = entries.length === 0 ? 'none' : 'block';
+  }
 
   if (collCount) {
     collCount.textContent = entries.length;

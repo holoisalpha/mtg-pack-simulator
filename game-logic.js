@@ -92,7 +92,8 @@ function getCurrentSetConfig() {
       starterDeck: $('starterDeck'),
       mainCardArea: $('mainCardArea'),
       power9Flash: $('power9Flash'),
-      collCount: $('collCount')
+      collCount: $('collCount'),
+      mtgCollection: $('mtgCollection')
     };
     
     // === DISPLAY MODE ===
@@ -401,6 +402,11 @@ function getCurrentSetConfig() {
       dom.starterContainer.style.display = 'none';
       dom.revealContainer.style.display = 'none';
       dom.boosterPack.classList.remove('opening');
+
+      // Auto-scroll to pack
+      setTimeout(() => {
+        dom.packContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
 
     function openStarterDeckPrepare() {
@@ -445,6 +451,11 @@ function getCurrentSetConfig() {
       dom.starterContainer.style.display = 'flex';
       dom.revealContainer.style.display = 'none';
       dom.starterDeck.classList.remove('opening');
+
+      // Auto-scroll to starter deck
+      setTimeout(() => {
+        dom.starterContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
 
     function openStarterDeck() {
@@ -1189,19 +1200,13 @@ function getCurrentSetConfig() {
       dom.collCount.textContent = entries.length;
       
       if (entries.length === 0) {
-        // Show empty message, hide all sections
-        dom.emptyCollection.style.display = 'block';
-        dom.power9Section.style.display = 'none';
-        dom.dualSection.style.display = 'none';
-        dom.whiteSection.style.display = 'none';
-        dom.blueSection.style.display = 'none';
-        dom.blackSection.style.display = 'none';
-        dom.redSection.style.display = 'none';
-        dom.greenSection.style.display = 'none';
-        dom.colorlessSection.style.display = 'none';
+        // Hide entire collection when empty
+        dom.mtgCollection.style.display = 'none';
         return;
       }
-      
+
+      // Show collection when there are cards
+      dom.mtgCollection.style.display = 'block';
       dom.emptyCollection.style.display = 'none';
       
       // Categorize cards
