@@ -36,7 +36,7 @@ function switchGameMode(mode) {
     if (mtgCollection) mtgCollection.style.display = 'none';
     // Only show Pokemon collection if it has cards
     const pokemonCollCount = document.getElementById('pokemonCollCount');
-    const hasPokemonCards = pokemonCollCount && parseInt(pokemonCollCount.textContent) > 0;
+    const hasPokemonCards = pokemonCollCount && pokemonCollCount.textContent !== '0';
     if (pokemonCollection) pokemonCollection.style.display = hasPokemonCards ? 'block' : 'none';
 
     if (openBtn) {
@@ -95,7 +95,7 @@ function switchGameMode(mode) {
 
     // Only show MTG collection if it has cards
     const mtgCollCount = document.getElementById('collCount');
-    const hasMtgCards = mtgCollCount && parseInt(mtgCollCount.textContent) > 0;
+    const hasMtgCards = mtgCollCount && mtgCollCount.textContent !== '0';
     if (mtgCollection) mtgCollection.style.display = hasMtgCards ? 'block' : 'none';
     if (pokemonCollection) pokemonCollection.style.display = 'none';
 
