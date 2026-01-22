@@ -48,21 +48,42 @@ A web-based Magic: The Gathering pack opening simulator for early MTG sets. Open
 - Scryfall API for card images
 - Base64 embedded pack art
 
+## Project Structure
+
+```
+├── index.html      # Main HTML structure
+├── styles.css      # Styling and animations
+└── game.js         # Game logic and card data (~4MB with embedded images)
+```
+
+### Key Functions (game.js)
+
+| Function | Purpose |
+|----------|---------|
+| `selectSet(setCode)` | Changes current set, updates header, resets collection |
+| `openPack()` | Generates booster pack for current set |
+| `openBoosterBox()` | Opens 36 packs (60 for ARN), no duplicate rares |
+| `openStarterDeckPrepare()` | Generates 60-card starter deck |
+| `openStarterBox()` | Opens 10 starter decks, no duplicate rares |
+| `updateCollection()` | Renders collection organized by category/color |
+
+### Scryfall Set Codes
+
+| Set | Code |
+|-----|------|
+| Alpha | `lea` |
+| Beta | `leb` |
+| Unlimited | `2ed` |
+| Arabian Nights | `arn` |
+| Legends | `leg` |
+| 4th Edition | `4ed` |
+
 ## Local Development
 
 Simply open `index.html` in a browser, or serve with any static file server:
 
 ```bash
 npx serve .
-```
-
-## Project Structure
-
-```
-├── index.html      # Main HTML structure
-├── styles.css      # Styling and animations
-├── game.js         # Game logic and card data (~4MB with embedded images)
-└── README.md       # This file
 ```
 
 ## Credits
