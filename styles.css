@@ -351,7 +351,8 @@ h1.subtitle {
 }
 
 .controls button {
-  width: 160px;
+  width: 180px;
+  white-space: nowrap;
 }
 
 button {
