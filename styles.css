@@ -261,11 +261,16 @@ h1.subtitle {
   font-size: 0.6rem;
 }
 
+
 .set-buttons, .product-buttons {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.set-buttons.collapsed, .product-buttons.collapsed {
+  justify-content: center !important;
 }
 
 .set-info, .product-info {

@@ -16,45 +16,43 @@
 
   <!-- MTG Frame Selector -->
   <div class="mtg-frame" id="mtgFrame">
-    <div class="frame-header">Select Your Set</div>
+    <div class="frame-header">Your Set</div>
     <div class="set-buttons">
-      <button class="mtg-btn" data-set="lea" onclick="selectSet('lea')">Alpha</button>
-      <button class="mtg-btn active" data-set="leb" onclick="selectSet('leb')">Beta</button>
-      <button class="mtg-btn" data-set="2ed" onclick="selectSet('2ed')">Unlimited</button>
-      <button class="mtg-btn" data-set="arn" onclick="selectSet('arn')"><img src="set-icons/arn.svg" class="set-icon" alt="">Arabian Nights</button>
-      <button class="mtg-btn" data-set="leg" onclick="selectSet('leg')"><img src="set-icons/leg.svg" class="set-icon" alt="">Legends</button>
-      <button class="mtg-btn" data-set="atq" onclick="selectSet('atq')"><img src="set-icons/atq.svg" class="set-icon" alt="">Antiquities</button>
-      <!-- Hidden for now - can be re-enabled later -->
-      <!-- <button class="mtg-btn" data-set="4ed" onclick="selectSet('4ed')">4th Edition</button> -->
+      <button class="mtg-btn active" data-set="lea" onclick="selectSet('lea')">Alpha</button>
+      <button class="mtg-btn extra-option" data-set="leb" onclick="selectSet('leb')" style="display:none;">Beta</button>
+      <button class="mtg-btn extra-option" data-set="2ed" onclick="selectSet('2ed')" style="display:none;">Unlimited</button>
+      <button class="mtg-btn extra-option" data-set="arn" onclick="selectSet('arn')" style="display:none;"><img src="set-icons/arn.svg" class="set-icon" alt="">Arabian Nights</button>
+      <button class="mtg-btn extra-option" data-set="leg" onclick="selectSet('leg')" style="display:none;"><img src="set-icons/leg.svg" class="set-icon" alt="">Legends</button>
+      <button class="mtg-btn extra-option" data-set="atq" onclick="selectSet('atq')" style="display:none;"><img src="set-icons/atq.svg" class="set-icon" alt="">Antiquities</button>
     </div>
-    <p class="set-info" id="setInfo">Limited Edition Beta • October 1993 • 302 Cards</p>
+    <p class="set-info" id="setInfo">Limited Edition Alpha • August 1993 • 295 Cards</p>
 
-    <div class="frame-divider"></div>
+    <div class="frame-divider" onclick="toggleMtgOptions()" style="cursor:pointer;"></div>
 
-    <div class="frame-header">Select Product</div>
+    <div class="frame-header">Product</div>
     <div class="product-buttons">
       <button class="mtg-btn active" id="boosterBtn" onclick="selectProduct('booster')">Booster Pack</button>
-      <button class="mtg-btn" id="boosterBoxBtn" onclick="selectProduct('booster-box')">Booster Box</button>
-      <button class="mtg-btn" id="starterBtn" onclick="selectProduct('starter')">Starter Deck</button>
-      <button class="mtg-btn" id="starterBoxBtn" onclick="selectProduct('starter-box')">Starter Box</button>
+      <button class="mtg-btn extra-option" id="boosterBoxBtn" onclick="selectProduct('booster-box')" style="display:none;">Booster Box</button>
+      <button class="mtg-btn extra-option" id="starterBtn" onclick="selectProduct('starter')" style="display:none;">Starter Deck</button>
+      <button class="mtg-btn extra-option" id="starterBoxBtn" onclick="selectProduct('starter-box')" style="display:none;">Starter Box</button>
     </div>
     <p class="product-info" id="productInfo">15 cards • 11 commons, 3 uncommons, 1 rare</p>
   </div>
 
   <!-- Pokemon Frame Selector (hidden by default) -->
   <div class="mtg-frame pokemon-frame" id="pokemonFrame" style="display:none;">
-    <div class="frame-header">Select Your Set</div>
+    <div class="frame-header">Your Set</div>
     <div class="set-buttons">
       <button class="mtg-btn active" data-set="base1">1st Edition Base Set</button>
     </div>
     <p class="set-info" id="pokemonSetInfo">1st Edition Base Set • January 1999 • 102 Cards</p>
 
-    <div class="frame-divider"></div>
+    <div class="frame-divider" onclick="togglePokemonOptions()" style="cursor:pointer;"></div>
 
-    <div class="frame-header">Select Product</div>
+    <div class="frame-header">Product</div>
     <div class="product-buttons">
       <button class="mtg-btn active" id="pokemonBoosterBtn" onclick="selectPokemonProduct('booster')">Booster Pack</button>
-      <button class="mtg-btn" id="pokemonBoxBtn" onclick="selectPokemonProduct('booster-box')">Booster Box</button>
+      <button class="mtg-btn extra-option" id="pokemonBoxBtn" onclick="selectPokemonProduct('booster-box')" style="display:none;">Booster Box</button>
     </div>
     <p class="product-info" id="pokemonProductInfo">11 cards • 7 commons, 3 uncommons, 1 rare</p>
   </div>

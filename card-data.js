@@ -12,7 +12,7 @@ const SETS_CONFIG = {
   "4ed": { name: "4th Edition", fullName: "Fourth Edition", code: "4ed", year: 1995, releaseDate: "April 1995", cardCount: 378, hasStarter: true, boosterSize: 15, starterSize: 60 }
 };
 
-let currentSetCode = 'leb'; // Default to Beta
+let currentSetCode = 'lea'; // Default to Beta
 
 // Pack images for different sets
 const PACK_IMAGES = {

@@ -1483,3 +1483,32 @@ function getCurrentSetConfig() {
     // Initialize button onclick (removed from HTML to allow mode switching)
     const openBtn = document.getElementById('openBtn');
     if (openBtn) openBtn.onclick = openProduct;
+
+    // Toggle MTG extra options (sets and products)
+    let mtgOptionsExpanded = false;
+    function toggleMtgOptions() {
+      mtgOptionsExpanded = !mtgOptionsExpanded;
+      const extraOptions = document.querySelectorAll('#mtgFrame .extra-option');
+      const setButtons = document.querySelector('#mtgFrame .set-buttons');
+      const productButtons = document.querySelector('#mtgFrame .product-buttons');
+      extraOptions.forEach(opt => opt.style.display = mtgOptionsExpanded ? '' : 'none');
+      setButtons.classList.toggle('collapsed', !mtgOptionsExpanded);
+      productButtons.classList.toggle('collapsed', !mtgOptionsExpanded);
+    }
+    window.toggleMtgOptions = toggleMtgOptions;
+
+    // Toggle Pokemon extra options (products)
+    let pokemonOptionsExpanded = false;
+    function togglePokemonOptions() {
+      pokemonOptionsExpanded = !pokemonOptionsExpanded;
+      const extraOptions = document.querySelectorAll('#pokemonFrame .extra-option');
+      const productButtons = document.querySelector('#pokemonFrame .product-buttons');
+      extraOptions.forEach(opt => opt.style.display = pokemonOptionsExpanded ? '' : 'none');
+      productButtons.classList.toggle('collapsed', !pokemonOptionsExpanded);
+    }
+    window.togglePokemonOptions = togglePokemonOptions;
+
+    // Initialize collapsed state
+    document.querySelector('#mtgFrame .set-buttons').classList.add('collapsed');
+    document.querySelector('#mtgFrame .product-buttons').classList.add('collapsed');
+    document.querySelector('#pokemonFrame .product-buttons').classList.add('collapsed');
