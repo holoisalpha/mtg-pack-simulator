@@ -1512,3 +1512,6 @@ function getCurrentSetConfig() {
     document.querySelector('#mtgFrame .set-buttons').classList.add('collapsed');
     document.querySelector('#mtgFrame .product-buttons').classList.add('collapsed');
     document.querySelector('#pokemonFrame .product-buttons').classList.add('collapsed');
+
+    // Scroll to top on page load/refresh
+    window.scrollTo(0, 0);

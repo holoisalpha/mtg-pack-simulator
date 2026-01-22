@@ -962,9 +962,9 @@ button:disabled {
   transition: var(--transition-bounce);
   transition-property: transform, box-shadow;
   animation: cardSlideIn 0.35s ease-out;
-  background: var(--color-bg-elevated);
+  background: none;
   transform-origin: center center;
-  border: 1px solid var(--border-subtle);
+  border: none;
 }
 
 .revealed-row .mini-card img {
@@ -1804,10 +1804,8 @@ button:focus-visible,
   height: 350px;
 }
 
-/* Pokemon card reveal area spacing */
+/* Pokemon card reveal area spacing - inherits size from main-card-area */
 .pokemon-card-area {
-  width: 250px;
-  height: 350px;
   margin-bottom: var(--space-lg);
 }
 
