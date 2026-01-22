@@ -1362,6 +1362,22 @@ button:disabled {
     overflow-x: visible;
   }
 
+  /* Pokemon card sizing on mobile - match MTG */
+  .pokemon-card-area {
+    width: 200px;
+    height: 280px;
+  }
+
+  .pokemon-card-full {
+    width: 200px;
+    height: 280px;
+  }
+
+  .pokemon-card-mini {
+    width: 60px;
+    height: 84px;
+  }
+
   .mtg-frame {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
@@ -1456,6 +1472,22 @@ button:disabled {
   .revealed-row .mini-card:hover,
   .collection-area .mini-card:hover {
     transform: scale(2.2);
+  }
+
+  /* Pokemon card sizing on smaller mobile - match MTG */
+  .pokemon-card-area {
+    width: 170px;
+    height: 238px;
+  }
+
+  .pokemon-card-full {
+    width: 170px;
+    height: 238px;
+  }
+
+  .pokemon-card-mini {
+    width: 50px;
+    height: 70px;
   }
 }
 
@@ -1594,18 +1626,20 @@ button:focus-visible,
 }
 
 .pokemon-card-full {
-  width: 280px;
-  height: 390px;
+  width: 250px;
+  height: 350px;
 }
 
 /* Pokemon card reveal area spacing */
 .pokemon-card-area {
+  width: 250px;
+  height: 350px;
   margin-bottom: var(--space-lg);
 }
 
 .pokemon-card-mini {
-  width: 60px;
-  height: 84px;
+  width: 75px;
+  height: 105px;
 }
 
 .pokemon-card-collection {
