@@ -136,17 +136,43 @@ body::after {
   background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
 }
 
-h1 {
-  font-family: 'Cinzel', serif;
-  font-size: clamp(1.75rem, 5vw, 2.75rem);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  background: linear-gradient(135deg, var(--color-gold-light) 0%, var(--color-gold) 50%, var(--color-gold-dark) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.header-logo {
+  max-width: min(400px, 85vw);
+  height: auto;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+}
+
+h1.subtitle {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: clamp(1.1rem, 4vw, 1.6rem);
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #c9b896;
+  margin: 0.75rem 0 0.5rem;
+  text-shadow:
+    0 2px 4px rgba(0,0,0,0.8),
+    0 0 20px rgba(201, 184, 150, 0.3);
+  display: block;
+}
+
+.mana-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
   margin-bottom: var(--space-sm);
-  text-shadow: 0 0 60px var(--color-gold-glow);
+}
+
+.mana-icon {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  transition: transform 0.2s ease;
+}
+
+.mana-icon:hover {
+  transform: scale(1.15);
 }
 
 .sub {
@@ -254,6 +280,25 @@ h1 {
   gap: 0.5rem;
 }
 
+.set-info, .product-info {
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #3d3225;
+  margin: 0.6rem 0 0;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.set-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  vertical-align: middle;
+  filter: brightness(0);
+  opacity: 0.7;
+}
+
 .mtg-btn {
   background: linear-gradient(to bottom,
     #f4e8d0 0%,
@@ -332,43 +377,119 @@ button {
 }
 
 button:not(.secondary):not(.mtg-btn) {
-  background: linear-gradient(135deg, var(--color-gold-light) 0%, var(--color-gold) 50%, var(--color-gold-dark) 100%);
-  color: var(--color-bg-primary);
-  box-shadow: var(--shadow-gold), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  letter-spacing: 0.02em;
+  background:
+    linear-gradient(to bottom,
+      #ffd966 0%,
+      #f4c430 15%,
+      #d4a017 50%,
+      #b8860b 85%,
+      #8b6914 100%
+    );
+  border: 4px solid #2a1f0a;
+  border-radius: 10px;
+  color: #1a0f00;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1rem 2.5rem;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,200,0.6),
+    inset 0 -3px 6px rgba(0,0,0,0.4),
+    0 0 0 2px #d4af37,
+    0 6px 20px rgba(0,0,0,0.6),
+    0 0 40px rgba(212,175,55,0.3);
+  text-shadow:
+    0 1px 0 rgba(255,255,200,0.5),
+    0 2px 4px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
 }
 
 button:not(.secondary):not(.mtg-btn)::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
-  pointer-events: none;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
 button:not(.secondary):not(.mtg-btn):hover {
+  background:
+    linear-gradient(to bottom,
+      #ffe680 0%,
+      #ffd54f 15%,
+      #e6b422 50%,
+      #cca01a 85%,
+      #a68512 100%
+    );
   transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(212, 168, 83, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,200,0.7),
+    inset 0 -3px 6px rgba(0,0,0,0.3),
+    0 0 0 2px #e8c84a,
+    0 10px 30px rgba(0,0,0,0.5),
+    0 0 60px rgba(212,175,55,0.5);
+}
+
+button:not(.secondary):not(.mtg-btn):hover::before {
+  left: 100%;
 }
 
 button:not(.secondary):not(.mtg-btn):active {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-gold);
+  transform: translateY(0);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.4),
+    inset 0 -1px 0 rgba(255,255,200,0.3),
+    0 0 0 2px #b8963a,
+    0 3px 10px rgba(0,0,0,0.5),
+    0 0 20px rgba(212,175,55,0.2);
 }
 
 button.secondary {
-  background: var(--color-bg-card);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-light);
-  color: var(--text-secondary);
-  box-shadow: none;
+  background: linear-gradient(to bottom,
+    #4a4a52 0%,
+    #3a3a42 30%,
+    #2a2a32 70%,
+    #1a1a22 100%
+  );
+  border: 2px solid #5a5a62;
+  border-radius: 8px;
+  color: #b8b8c0;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -2px 4px rgba(0,0,0,0.3),
+    0 3px 8px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 button.secondary:hover:not(:disabled) {
-  background: var(--color-bg-elevated);
-  border-color: var(--border-accent);
+  background: linear-gradient(to bottom,
+    #5a5a65 0%,
+    #4a4a55 30%,
+    #3a3a45 70%,
+    #2a2a35 100%
+  );
+  border-color: #7a7a85;
+  color: #d8d8e0;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -2px 4px rgba(0,0,0,0.2),
+    0 5px 12px rgba(0,0,0,0.4);
 }
 
 button:disabled {
@@ -1226,10 +1347,29 @@ button:disabled {
   .mtg-btn {
     padding: 0.4rem 0.7rem;
     font-size: 0.8rem;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .set-buttons, .product-buttons {
-    gap: 0.4rem;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .set-buttons::-webkit-scrollbar,
+  .product-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mtg-frame {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
   .controls {

@@ -1084,7 +1084,8 @@ function getCurrentSetConfig() {
       starterDeck: $('starterDeck'),
       mainCardArea: $('mainCardArea'),
       power9Flash: $('power9Flash'),
-      collCount: $('collCount')
+      collCount: $('collCount'),
+      productInfo: $('productInfo')
     };
     
     // === DISPLAY MODE ===
@@ -1203,6 +1204,10 @@ function getCurrentSetConfig() {
       if (setInfoEl) {
         setInfoEl.textContent = `${setConfig.fullName} • ${setConfig.releaseDate} • ${setConfig.cardCount} Cards`;
       }
+
+      // Update product info (pack sizes differ by set)
+      updateProductInfo();
+
       // Show/hide starter buttons based on set
       if (dom.starterBtn) {
         dom.starterBtn.style.display = setConfig.hasStarter ? '' : 'none';
@@ -1258,14 +1263,37 @@ function getCurrentSetConfig() {
       dom.boosterBoxBtn.classList.toggle('active', type === 'booster-box');
       dom.starterBtn.classList.toggle('active', type === 'starter');
       dom.starterBoxBtn.classList.toggle('active', type === 'starter-box');
-      
+
       const labels = {
-        'booster': '🎴 Open Booster Pack',
-        'booster-box': '📦 Open Booster Box',
-        'starter': '📦 Open Starter Deck',
-        'starter-box': '🗃️ Open Starter Box'
+        'booster': 'Open Booster Pack',
+        'booster-box': 'Open Booster Box',
+        'starter': 'Open Starter Deck',
+        'starter-box': 'Open Starter Box'
       };
       dom.openBtn.textContent = labels[type] || '🎴 Open Pack';
+
+      updateProductInfo();
+    }
+
+    function updateProductInfo() {
+      const isARN = currentSetCode === 'arn';
+      const packsPerBox = isARN ? 60 : 36;
+      const cardsPerPack = isARN ? 8 : 15;
+
+      const info = {
+        'booster': isARN
+          ? '8 cards • 6 commons, 1-2 uncommons, ~30% rare chance'
+          : '15 cards • 11 commons, 3 uncommons, 1 rare',
+        'booster-box': isARN
+          ? `60 packs • 480 cards total`
+          : `36 packs • 540 cards total`,
+        'starter': '60 cards • 23 commons, 13 uncommons, 2 rares, 22 lands',
+        'starter-box': '10 decks • 600 cards total'
+      };
+
+      if (dom.productInfo) {
+        dom.productInfo.textContent = info[productType] || '';
+      }
     }
 
     function openProduct() {

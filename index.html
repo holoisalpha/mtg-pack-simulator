@@ -9,8 +9,8 @@
 </head>
 <body>
   <div class="header">
-    <h1>⚔️ MTG PACK RIP SIMULATOR</h1>
-    <p class="sub" id="setInfo">Limited Edition Beta • October 1993 • 302 Cards</p>
+    <img src="mtg-logo.png" alt="Magic: The Gathering" class="header-logo">
+    <h1 class="subtitle">PACK RIP SIMULATOR</h1>
   </div>
 
 
@@ -21,10 +21,11 @@
       <button class="mtg-btn" data-set="lea" onclick="selectSet('lea')">Alpha</button>
       <button class="mtg-btn active" data-set="leb" onclick="selectSet('leb')">Beta</button>
       <button class="mtg-btn" data-set="2ed" onclick="selectSet('2ed')">Unlimited</button>
-      <button class="mtg-btn" data-set="arn" onclick="selectSet('arn')">Arabian Nights</button>
-      <button class="mtg-btn" data-set="leg" onclick="selectSet('leg')">Legends</button>
+      <button class="mtg-btn" data-set="arn" onclick="selectSet('arn')"><img src="set-icons/arn.svg" class="set-icon" alt="">Arabian Nights</button>
+      <button class="mtg-btn" data-set="leg" onclick="selectSet('leg')"><img src="set-icons/leg.svg" class="set-icon" alt="">Legends</button>
       <button class="mtg-btn" data-set="4ed" onclick="selectSet('4ed')">4th Edition</button>
     </div>
+    <p class="set-info" id="setInfo">Limited Edition Beta • October 1993 • 302 Cards</p>
 
     <div class="frame-divider"></div>
 
@@ -35,11 +36,12 @@
       <button class="mtg-btn" id="starterBtn" onclick="selectProduct('starter')">Starter Deck</button>
       <button class="mtg-btn" id="starterBoxBtn" onclick="selectProduct('starter-box')">Starter Box</button>
     </div>
+    <p class="product-info" id="productInfo">15 cards • 11 commons, 3 uncommons, 1 rare</p>
   </div>
 
   <div class="controls">
-    <button onclick="openProduct()" id="openBtn">🎴 Open Booster Pack</button>
-    <button onclick="skipAll()" id="skipBtn" class="secondary" disabled>⏭ Skip to End</button>
+    <button onclick="openProduct()" id="openBtn">Open Booster Pack</button>
+    <button onclick="skipAll()" id="skipBtn" class="secondary" disabled>Skip to End</button>
     
   </div>
   
