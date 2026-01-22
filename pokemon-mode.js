@@ -76,6 +76,14 @@ function switchGameMode(mode) {
     const pokemonRevealedRow = document.getElementById('pokemonRevealedRow');
     if (pokemonRevealedRow) pokemonRevealedRow.innerHTML = '';
 
+    // Hide MTG alert (Power 9, etc.)
+    const alertDiv = document.getElementById('alert');
+    if (alertDiv) {
+      alertDiv.style.display = 'none';
+      alertDiv.textContent = '';
+      alertDiv.className = 'alert';
+    }
+
     // Hide box results and remove MTG styling
     const boxResults = document.getElementById('boxResultsContainer');
     if (boxResults) {
@@ -154,6 +162,10 @@ function switchGameMode(mode) {
 // Pokemon product selection
 function selectPokemonProduct(product) {
   currentPokemonProduct = product;
+
+  // Hide box results if showing
+  const boxResults = document.getElementById('boxResultsContainer');
+  if (boxResults) boxResults.style.display = 'none';
 
   const boosterBtn = document.getElementById('pokemonBoosterBtn');
   const boxBtn = document.getElementById('pokemonBoxBtn');
@@ -249,6 +261,10 @@ function openPokemonBoosterPack() {
   const packContainer = document.getElementById('pokemonPackContainer');
   const boosterPack = document.getElementById('pokemonBoosterPack');
 
+  // Hide box results if showing
+  const boxResults = document.getElementById('boxResultsContainer');
+  if (boxResults) boxResults.style.display = 'none';
+
   if (boosterPack) boosterPack.classList.add('opening');
 
   setTimeout(() => {
@@ -264,6 +280,10 @@ function openPokemonBoosterPack() {
 }
 
 function showPokemonCurrentCard() {
+  // Always hide box results when showing cards
+  const boxResults = document.getElementById('boxResultsContainer');
+  if (boxResults) boxResults.style.display = 'none';
+
   const card = pokemonCurrentPack[pokemonCurrentIndex];
   const mainArea = document.getElementById('pokemonMainCardArea');
   const rarityLabel = document.getElementById('pokemonRarityLabel');
@@ -358,6 +378,7 @@ function finishPokemonPack() {
 
   pokemonCurrentPack = [];
   pokemonPackOpen = false;
+  savePokemonCollection();
   updatePokemonCollection();
 
   document.getElementById('openBtn').disabled = false;
@@ -407,10 +428,13 @@ function updatePokemonCollection() {
     'Colorless': 'colorlessPokeArea'
   };
 
-  // Clear all areas
+  // Clear all areas and hide sections
   Object.values(typeMap).forEach(areaId => {
     const area = document.getElementById(areaId);
-    if (area) area.innerHTML = '';
+    if (area) {
+      area.innerHTML = '';
+      if (area.parentElement) area.parentElement.style.display = 'none';
+    }
   });
 
   const chaseArea = document.getElementById('chaseArea');
@@ -421,6 +445,16 @@ function updatePokemonCollection() {
   if (holoArea) holoArea.innerHTML = '';
   if (trainerArea) trainerArea.innerHTML = '';
   if (energyArea) energyArea.innerHTML = '';
+
+  // Hide special sections
+  const chaseSection = document.getElementById('chaseSection');
+  const holoSection = document.getElementById('holoSection');
+  const trainerSection = document.getElementById('trainerSection');
+  const energySection = document.getElementById('energySection');
+  if (chaseSection) chaseSection.style.display = 'none';
+  if (holoSection) holoSection.style.display = 'none';
+  if (trainerSection) trainerSection.style.display = 'none';
+  if (energySection) energySection.style.display = 'none';
 
   // Sort and display cards
   entries.forEach(entry => {
@@ -513,8 +547,8 @@ function openPokemonBoosterBox() {
       });
     }
 
-    // Show box results
-    showPokemonBoxResults(allCards, holosFound, chasesFound);
+    // Skip box results for Pokemon - just save and update collection
+    savePokemonCollection();
     updatePokemonCollection();
 
     document.getElementById('openBtn').disabled = false;

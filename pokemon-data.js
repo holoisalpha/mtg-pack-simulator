@@ -177,6 +177,32 @@ function getPokemonCardImage(cardNumber) {
 // Pokemon collection (separate from MTG)
 let pokemonCollection = {};
 
+// Load Pokemon collection from localStorage
+function loadPokemonCollection() {
+  try {
+    const saved = localStorage.getItem('pokemonCollection');
+    if (saved) {
+      pokemonCollection = JSON.parse(saved);
+      console.log('Pokemon collection loaded:', Object.keys(pokemonCollection).length, 'unique cards');
+    }
+  } catch (e) {
+    console.error('Error loading Pokemon collection:', e);
+    pokemonCollection = {};
+  }
+}
+
+// Save Pokemon collection to localStorage
+function savePokemonCollection() {
+  try {
+    localStorage.setItem('pokemonCollection', JSON.stringify(pokemonCollection));
+  } catch (e) {
+    console.error('Error saving Pokemon collection:', e);
+  }
+}
+
+// Load collection on script init
+loadPokemonCollection();
+
 // Current Pokemon pack state
 let pokemonCurrentPack = [];
 let pokemonCurrentIndex = 0;

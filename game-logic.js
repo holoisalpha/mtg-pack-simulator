@@ -1482,3 +1482,7 @@ function getCurrentSetConfig() {
       const cardPool = getCardPool();
       preloadSetPrices(currentSetCode, cardPool);
     }
+
+    // Initialize button onclick (removed from HTML to allow mode switching)
+    const openBtn = document.getElementById('openBtn');
+    if (openBtn) openBtn.onclick = openProduct;
