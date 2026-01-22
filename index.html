@@ -130,6 +130,8 @@
     </div>
     <div class="card-info">
       <div class="card-counter">Card <span id="pokemonCurrentCard">0</span> of <span id="pokemonTotalCards">11</span></div>
+      <div class="card-value" id="pokemonCardValue" style="display:none;"></div>
+      <div class="pack-value" id="pokemonPackValue" style="display:none;">Pack Value: <span id="pokemonPackValueAmount">$0</span></div>
       <div class="card-hint" id="pokemonCardHint">Tap for next card</div>
     </div>
     <div class="revealed-row" id="pokemonRevealedRow"></div>
@@ -207,6 +209,7 @@
   <!-- Pokemon Collection (hidden by default) -->
   <div class="collection pokemon-collection" id="pokemonCollectionSection" style="display:none;">
     <h2>Collection (<span id="pokemonCollCount">0</span> unique cards)</h2>
+    <div class="collection-value" id="pokemonCollectionValue">Total Value: <span id="pokemonCollectionValueAmount">$0</span></div>
 
     <!-- Chase Cards Section -->
     <div id="chaseSection" class="collection-section chase-section" style="display:none;">
@@ -274,6 +277,6 @@
     <script src="price-data.js?v=20260122"></script>
     <script src="game-logic.js?v=20260122d"></script>
     <script src="pokemon-data.js?v=20260122d"></script>
-    <script src="pokemon-mode.js?v=20260122e"></script>
+    <script src="pokemon-mode.js?v=20260122f"></script>
 </body>
 </html>

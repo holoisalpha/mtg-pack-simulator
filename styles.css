@@ -1795,11 +1795,13 @@ button:focus-visible,
 .pokemon-card-mini {
   width: 75px;
   height: 105px;
+  overflow: visible;
 }
 
 .pokemon-card-collection {
-  width: 120px;
-  height: 168px;
+  width: 75px;
+  height: 105px;
+  overflow: visible;
 }
 
 /* Holo Card Effect */

@@ -204,6 +204,139 @@ function savePokemonCollection() {
 localStorage.removeItem('pokemonCollection');
 pokemonCollection = {};
 
+// Pokemon Card Prices - 1st Edition Base Set (PSA 9/10 equivalent, NM condition)
+const POKEMON_PRICES = {
+  // Chase Cards (Holos)
+  'Charizard': 25000,
+  'Blastoise': 4500,
+  'Venusaur': 3500,
+  'Mewtwo': 2500,
+  'Alakazam': 2000,
+  'Chansey': 1800,
+  'Clefairy': 1500,
+  'Gyarados': 2200,
+  'Hitmonchan': 1400,
+  'Machamp': 1200,
+  'Magneton': 1300,
+  'Nidoking': 1600,
+  'Ninetales': 1800,
+  'Poliwrath': 1400,
+  'Raichu': 2000,
+  'Zapdos': 2200,
+
+  // Non-Holo Rares
+  'Beedrill': 150,
+  'Dragonair': 200,
+  'Dugtrio': 120,
+  'Electabuzz': 180,
+  'Electrode': 130,
+  'Pidgeotto': 100,
+
+  // Uncommons
+  'Charmeleon': 250,
+  'Wartortle': 180,
+  'Ivysaur': 150,
+  'Haunter': 80,
+  'Kadabra': 60,
+  'Machoke': 40,
+  'Magikarp': 100,
+  'Pidgeotto': 50,
+  'Poliwhirl': 35,
+  'Seel': 25,
+  'Growlithe': 60,
+
+  // Commons
+  'Charmander': 200,
+  'Squirtle': 150,
+  'Bulbasaur': 120,
+  'Pikachu': 350,
+  'Abra': 30,
+  'Caterpie': 15,
+  'Diglett': 15,
+  'Doduo': 12,
+  'Drowzee': 12,
+  'Gastly': 25,
+  'Geodude': 12,
+  'Jynx': 20,
+  'Koffing': 15,
+  'Machop': 15,
+  'Magnemite': 20,
+  'Metapod': 12,
+  'Nidoran♀': 15,
+  'Nidoran♂': 15,
+  'Onix': 30,
+  'Pidgey': 15,
+  'Poliwag': 12,
+  'Ponyta': 25,
+  'Rattata': 12,
+  'Sandshrew': 15,
+  'Spearow': 12,
+  'Starmie': 25,
+  'Staryu': 15,
+  'Tangela': 20,
+  'Voltorb': 15,
+  'Vulpix': 35,
+  'Weedle': 12,
+
+  // Trainers
+  'Professor Oak': 80,
+  'Bill': 40,
+  'Pokemon Trader': 30,
+  'Pokemon Breeder': 50,
+  'Clefairy Doll': 25,
+  'Computer Search': 60,
+  'Devolution Spray': 30,
+  'Imposter Professor Oak': 35,
+  'Item Finder': 50,
+  'Lass': 30,
+  'Pokemon Flute': 20,
+  'Pokedex': 20,
+  'Scoop Up': 40,
+  'Super Energy Removal': 45,
+  'Defender': 15,
+  'Energy Retrieval': 15,
+  'Full Heal': 12,
+  'Maintenance': 12,
+  'PlusPower': 20,
+  'Pokemon Center': 25,
+  'Potion': 10,
+  'Super Potion': 15,
+  'Switch': 20,
+  'Gust of Wind': 15,
+
+  // Default prices by rarity
+  '_default_holo': 1500,
+  '_default_rare': 100,
+  '_default_uncommon': 30,
+  '_default_common': 15,
+  '_default_trainer': 20,
+  '_default_energy': 5
+};
+
+function getPokemonCardPrice(cardName) {
+  if (POKEMON_PRICES[cardName] !== undefined) {
+    return POKEMON_PRICES[cardName];
+  }
+  return null;
+}
+
+function getPokemonDefaultPrice(card) {
+  if (card.isHolo) return POKEMON_PRICES['_default_holo'];
+  if (card.rarity === 'rare') return POKEMON_PRICES['_default_rare'];
+  if (card.rarity === 'uncommon') return POKEMON_PRICES['_default_uncommon'];
+  if (card.rarity === 'trainer') return POKEMON_PRICES['_default_trainer'];
+  if (card.rarity === 'energy') return POKEMON_PRICES['_default_energy'];
+  return POKEMON_PRICES['_default_common'];
+}
+
+function formatPokemonPrice(price) {
+  if (price === null || price === undefined) return '...';
+  if (price >= 1000) {
+    return '$' + (price / 1000).toFixed(1) + 'k';
+  }
+  return '$' + price.toLocaleString();
+}
+
 // Current Pokemon pack state
 let pokemonCurrentPack = [];
 let pokemonCurrentIndex = 0;
@@ -310,6 +443,11 @@ function createPokemonCardElement(card, size = 'full', animType = 'normal') {
   if (card.isChase) div.classList.add('chase-card');
   if (animType !== 'none') div.classList.add(`anim-${animType}`);
 
+  // For mini and collection cards, add the mini-card class for consistent styling
+  if (size === 'mini' || size === 'collection') {
+    div.classList.add('mini-card');
+  }
+
   const img = document.createElement('img');
   img.src = card.imageUrl;
   img.alt = card.name;
@@ -327,6 +465,18 @@ function createPokemonCardElement(card, size = 'full', animType = 'normal') {
     const shimmer = document.createElement('div');
     shimmer.className = 'holo-shimmer';
     div.appendChild(shimmer);
+  }
+
+  // Add price tooltip for mini cards
+  if (size === 'mini') {
+    let cardPrice = getPokemonCardPrice(card.name);
+    if (cardPrice === null) {
+      cardPrice = getPokemonDefaultPrice(card);
+    }
+    const tooltip = document.createElement('span');
+    tooltip.className = 'card-price-tooltip';
+    tooltip.textContent = formatPokemonPrice(cardPrice);
+    div.appendChild(tooltip);
   }
 
   return div;

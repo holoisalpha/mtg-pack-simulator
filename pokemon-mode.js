@@ -4,6 +4,7 @@
 let currentGameMode = 'mtg';
 let pokemonPackOpen = false;
 let currentPokemonProduct = 'booster';
+let currentPokemonPackValue = 0;
 
 // Toggle between MTG and Pokemon modes
 function toggleGameMode() {
@@ -270,6 +271,13 @@ function openPokemonBoosterPack() {
   setTimeout(() => {
     if (packContainer) packContainer.style.display = 'none';
 
+    // Reset pack value
+    currentPokemonPackValue = 0;
+    const packValueEl = document.getElementById('pokemonPackValue');
+    const packValueAmount = document.getElementById('pokemonPackValueAmount');
+    if (packValueEl) packValueEl.style.display = 'block';
+    if (packValueAmount) packValueAmount.textContent = '$0';
+
     // Reset and update the card counter
     document.getElementById('pokemonTotalCards').textContent = pokemonCurrentPack.length;
     document.getElementById('pokemonCurrentCard').textContent = '1';
@@ -311,6 +319,17 @@ function showPokemonCurrentCard() {
 
   document.getElementById('pokemonCurrentCard').textContent = pokemonCurrentIndex + 1;
 
+  // Show current card value
+  let cardPrice = getPokemonCardPrice(card.name);
+  if (cardPrice === null) {
+    cardPrice = getPokemonDefaultPrice(card);
+  }
+  const cardValueEl = document.getElementById('pokemonCardValue');
+  if (cardValueEl) {
+    cardValueEl.textContent = formatPokemonPrice(cardPrice);
+    cardValueEl.style.display = 'block';
+  }
+
   // Update hint
   const remaining = pokemonCurrentPack.length - pokemonCurrentIndex - 1;
   let hint = 'Tap for next card';
@@ -347,8 +366,22 @@ function handlePokemonCardClick() {
 }
 
 function moveToPokemonRevealedRow() {
+  const card = pokemonCurrentPack[pokemonCurrentIndex];
   const row = document.getElementById('pokemonRevealedRow');
-  row.appendChild(createPokemonCardElement(pokemonCurrentPack[pokemonCurrentIndex], 'mini', 'none'));
+  row.appendChild(createPokemonCardElement(card, 'mini', 'none'));
+
+  // Add card price to pack total
+  let cardPrice = getPokemonCardPrice(card.name);
+  if (cardPrice === null) {
+    cardPrice = getPokemonDefaultPrice(card);
+  }
+  currentPokemonPackValue += cardPrice;
+
+  // Update pack value display
+  const packValueAmount = document.getElementById('pokemonPackValueAmount');
+  if (packValueAmount) {
+    packValueAmount.textContent = formatPokemonPrice(currentPokemonPackValue);
+  }
 }
 
 function finishPokemonPack() {
@@ -387,6 +420,10 @@ function finishPokemonPack() {
 
   const rarityLabel = document.getElementById('pokemonRarityLabel');
   if (rarityLabel) rarityLabel.style.display = 'none';
+
+  // Hide card value after pack is done
+  const cardValueEl = document.getElementById('pokemonCardValue');
+  if (cardValueEl) cardValueEl.style.display = 'none';
 }
 
 function skipPokemonPack() {
@@ -415,6 +452,22 @@ function updatePokemonCollection() {
 
   if (collCount) {
     collCount.textContent = entries.length;
+  }
+
+  // Calculate total collection value
+  let totalValue = 0;
+  entries.forEach(entry => {
+    let cardPrice = getPokemonCardPrice(entry.card.name);
+    if (cardPrice === null) {
+      cardPrice = getPokemonDefaultPrice(entry.card);
+    }
+    totalValue += cardPrice * entry.count;
+  });
+
+  // Update collection value display
+  const collValueAmount = document.getElementById('pokemonCollectionValueAmount');
+  if (collValueAmount) {
+    collValueAmount.textContent = formatPokemonPrice(totalValue);
   }
 
   // Update collection display by type
@@ -459,42 +512,63 @@ function updatePokemonCollection() {
   // Sort and display cards
   entries.forEach(entry => {
     const card = entry.card;
+
+    // Create outer wrapper for card + price
+    const outer = document.createElement('div');
+    outer.className = 'collection-card-outer';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card-with-count';
+
     const cardEl = createPokemonCardElement(card, 'collection', 'none');
+    wrapper.appendChild(cardEl);
 
     // Add count badge
     if (entry.count > 1) {
       const badge = document.createElement('span');
-      badge.className = 'count-badge';
-      badge.textContent = 'x' + entry.count;
-      cardEl.appendChild(badge);
+      badge.className = 'card-count-badge';
+      badge.textContent = entry.count;
+      wrapper.appendChild(badge);
     }
+
+    outer.appendChild(wrapper);
+
+    // Add price below card
+    let cardPrice = getPokemonCardPrice(card.name);
+    if (cardPrice === null) {
+      cardPrice = getPokemonDefaultPrice(card);
+    }
+    const price = document.createElement('div');
+    price.className = 'collection-price';
+    price.textContent = formatPokemonPrice(cardPrice);
+    outer.appendChild(price);
 
     // Add to appropriate section
     if (card.isChase && chaseArea) {
-      chaseArea.appendChild(cardEl.cloneNode(true));
+      chaseArea.appendChild(outer.cloneNode(true));
       document.getElementById('chaseSection').style.display = 'block';
     }
 
     if (card.isHolo && holoArea) {
-      holoArea.appendChild(cardEl.cloneNode(true));
+      holoArea.appendChild(outer.cloneNode(true));
       document.getElementById('holoSection').style.display = 'block';
     }
 
     // Check if it's an energy card
     if (card.name && card.name.includes('Energy') && energyArea) {
-      energyArea.appendChild(cardEl);
+      energyArea.appendChild(outer);
       document.getElementById('energySection').style.display = 'block';
     }
     // Check if it's a trainer card (has rarity but no Pokemon type, or is in trainer list)
     else if ((!card.type || card.hp === undefined) && !card.name.includes('Energy') && trainerArea) {
-      trainerArea.appendChild(cardEl);
+      trainerArea.appendChild(outer);
       document.getElementById('trainerSection').style.display = 'block';
     }
     // Regular Pokemon card - add to type area
     else {
       const typeArea = document.getElementById(typeMap[card.type]);
       if (typeArea) {
-        typeArea.appendChild(cardEl);
+        typeArea.appendChild(outer);
         typeArea.parentElement.style.display = 'block';
       }
     }
