@@ -44,10 +44,10 @@ function switchGameMode(mode) {
       skipBtn.onclick = skipPokemonPack;
     }
 
-    // Update mode switch icon to show MTG (to switch back)
+    // Update mode switch icon to show Pokemon logo
     if (modeSwitchIcon) {
-      modeSwitchIcon.src = 'mtg-icon.png';
-      modeSwitchIcon.alt = 'Switch to MTG';
+      modeSwitchIcon.src = 'pokeball-icon.png';
+      modeSwitchIcon.alt = 'Pokemon Mode';
       modeSwitchIcon.title = 'Switch to Magic: The Gathering';
     }
 
@@ -100,10 +100,10 @@ function switchGameMode(mode) {
       skipBtn.onclick = skipAll;
     }
 
-    // Update mode switch icon to show Pokeball (to switch to Pokemon)
+    // Update mode switch icon to show MTG logo
     if (modeSwitchIcon) {
-      modeSwitchIcon.src = 'pokeball-icon.png';
-      modeSwitchIcon.alt = 'Switch to Pokemon';
+      modeSwitchIcon.src = 'mtg-icon.png';
+      modeSwitchIcon.alt = 'MTG Mode';
       modeSwitchIcon.title = 'Switch to Pokemon';
     }
 
