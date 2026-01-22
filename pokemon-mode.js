@@ -37,7 +37,7 @@ function switchGameMode(mode) {
     if (pokemonCollection) pokemonCollection.style.display = 'block';
 
     if (openBtn) {
-      openBtn.textContent = 'Open Booster Pack';
+      openBtn.textContent = 'Open Pack';
       openBtn.onclick = openPokemonProduct;
     }
     if (skipBtn) {
@@ -151,12 +151,12 @@ function selectPokemonProduct(product) {
     boosterBtn.classList.add('active');
     boxBtn.classList.remove('active');
     productInfo.textContent = '11 cards • 7 commons, 3 uncommons, 1 rare';
-    openBtn.textContent = 'Open Booster Pack';
+    openBtn.textContent = 'Open Pack';
   } else if (product === 'booster-box') {
     boosterBtn.classList.remove('active');
     boxBtn.classList.add('active');
     productInfo.textContent = '36 booster packs • 396 cards total';
-    openBtn.textContent = 'Open Booster Box';
+    openBtn.textContent = 'Open Box';
   }
 }
 

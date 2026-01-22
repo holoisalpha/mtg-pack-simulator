@@ -228,7 +228,7 @@ function getCurrentSetConfig() {
       if (dom.starterBtn) dom.starterBtn.style.display = 'none';
       if (dom.starterBoxBtn) dom.starterBoxBtn.style.display = 'none';
       selectProduct('booster');
-      dom.openBtn.textContent = 'Open Booster Pack';
+      dom.openBtn.textContent = 'Open Pack';
     }
 
     function updateMTGUI() {
@@ -322,10 +322,10 @@ function getCurrentSetConfig() {
       dom.starterBoxBtn.classList.toggle('active', type === 'starter-box');
 
       const labels = {
-        'booster': 'Open Booster Pack',
-        'booster-box': 'Open Booster Box',
-        'starter': 'Open Starter Deck',
-        'starter-box': 'Open Starter Box'
+        'booster': 'Open Pack',
+        'booster-box': 'Open Box',
+        'starter': 'Open Deck',
+        'starter-box': 'Open Box'
       };
       dom.openBtn.textContent = labels[type] || 'Open Pack';
 
