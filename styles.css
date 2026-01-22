@@ -1135,8 +1135,20 @@ button:disabled {
 
 /* Collection card price - always visible below card */
 .collection-area .card-with-count {
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Price label below collection cards */
+.collection-price-label {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 2px;
+  opacity: 0.7;
 }
 
 .collection-area .card-with-count .mini-card .card-price-tooltip {
@@ -1593,14 +1605,11 @@ button:disabled {
 
   /* Collection price tooltip on tablet/mobile */
   .collection-area .card-with-count {
-    margin-bottom: 18px;
+    margin-bottom: 6px;
   }
 
-  .collection-area .card-with-count .mini-card .card-price-tooltip {
-    top: 105% !important;
+  .collection-price-label {
     font-size: 8px;
-    opacity: 0.8 !important;
-    color: #9ca3af;
   }
 
   .box-stats {
@@ -1656,15 +1665,11 @@ button:disabled {
 
   /* Collection price tooltip on mobile */
   .collection-area .card-with-count {
-    margin-bottom: 18px;
+    margin-bottom: 4px;
   }
 
-  .collection-area .card-with-count .mini-card .card-price-tooltip {
-    top: 105% !important;
+  .collection-price-label {
     font-size: 7px;
-    padding: 2px 4px;
-    opacity: 0.8 !important;
-    color: #9ca3af;
   }
 
   /* Pokemon card sizing on smaller mobile - match MTG */

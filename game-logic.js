@@ -1392,14 +1392,30 @@ function getCurrentSetConfig() {
       function createCardWithCount(entry) {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-with-count';
-        wrapper.appendChild(createCardElement(entry.card, 'mini', 'none', entry.set));
-        
+        const cardEl = createCardElement(entry.card, 'mini', 'none', entry.set);
+        wrapper.appendChild(cardEl);
+
         if (entry.count > 1) {
           const badge = document.createElement('span');
           badge.className = 'card-count-badge';
           badge.textContent = entry.count;
           wrapper.appendChild(badge);
         }
+
+        // Add price label below card (separate from mini-card)
+        if (typeof getCardPrice === 'function') {
+          const setCode = entry.set || currentSetCode;
+          let cardPrice = getCardPrice(entry.card.name, setCode);
+          if (cardPrice === null) {
+            const rarity = entry.card.rarity || 'common';
+            cardPrice = getDefaultPrice(setCode, rarity);
+          }
+          const priceLabel = document.createElement('div');
+          priceLabel.className = 'collection-price-label';
+          priceLabel.textContent = formatPrice(cardPrice);
+          wrapper.appendChild(priceLabel);
+        }
+
         return wrapper;
       }
       
