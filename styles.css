@@ -124,7 +124,8 @@ body::after {
 
 .header-logo {
   max-width: min(400px, 85vw);
-  height: auto;
+  height: 115px;
+  object-fit: contain;
   margin-bottom: 0.5rem;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
   cursor: pointer;
@@ -1759,6 +1760,8 @@ button:focus-visible,
 .psychic-title { color: #ab47bc; }
 .fighting-title { color: #8d6e63; }
 .colorless-poke-title { color: #bdbdbd; }
+.trainer-title { color: #e57373; }
+.energy-title { color: #fff176; }
 
 /* Pokemon Pack Styling */
 .pokemon-pack {

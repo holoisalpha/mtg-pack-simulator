@@ -317,9 +317,6 @@ function finishPokemonPack() {
   // Add cards to Pokemon collection
   let cardsAdded = 0;
   pokemonCurrentPack.forEach(card => {
-    // Skip energy cards
-    if (card.name && card.name.includes('Energy')) return;
-
     const key = card.name + '|base1';
     if (pokemonCollection[key]) {
       if (pokemonCollection[key].count < 4) {
@@ -391,8 +388,12 @@ function updatePokemonCollection() {
 
   const chaseArea = document.getElementById('chaseArea');
   const holoArea = document.getElementById('holoArea');
+  const trainerArea = document.getElementById('trainerArea');
+  const energyArea = document.getElementById('energyArea');
   if (chaseArea) chaseArea.innerHTML = '';
   if (holoArea) holoArea.innerHTML = '';
+  if (trainerArea) trainerArea.innerHTML = '';
+  if (energyArea) energyArea.innerHTML = '';
 
   // Sort and display cards
   entries.forEach(entry => {
@@ -418,10 +419,23 @@ function updatePokemonCollection() {
       document.getElementById('holoSection').style.display = 'block';
     }
 
-    const typeArea = document.getElementById(typeMap[card.type]);
-    if (typeArea) {
-      typeArea.appendChild(cardEl);
-      typeArea.parentElement.style.display = 'block';
+    // Check if it's an energy card
+    if (card.name && card.name.includes('Energy') && energyArea) {
+      energyArea.appendChild(cardEl);
+      document.getElementById('energySection').style.display = 'block';
+    }
+    // Check if it's a trainer card (has rarity but no Pokemon type, or is in trainer list)
+    else if ((!card.type || card.hp === undefined) && !card.name.includes('Energy') && trainerArea) {
+      trainerArea.appendChild(cardEl);
+      document.getElementById('trainerSection').style.display = 'block';
+    }
+    // Regular Pokemon card - add to type area
+    else {
+      const typeArea = document.getElementById(typeMap[card.type]);
+      if (typeArea) {
+        typeArea.appendChild(cardEl);
+        typeArea.parentElement.style.display = 'block';
+      }
     }
   });
 
@@ -451,9 +465,6 @@ function openPokemonBoosterBox() {
     for (let i = 0; i < 36; i++) {
       const pack = generatePokemonPack(usedRares);
       pack.forEach(card => {
-        // Skip energy cards from collection
-        if (card.name && card.name.includes('Energy')) return;
-
         allCards.push(card);
 
         // Track holos and chases for highlights

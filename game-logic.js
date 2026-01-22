@@ -316,7 +316,7 @@ function getCurrentSetConfig() {
       dom.boosterBoxBtn.classList.toggle('active', type === 'booster-box');
       dom.starterBtn.classList.toggle('active', type === 'starter');
       dom.starterBoxBtn.classList.toggle('active', type === 'starter-box');
-      
+
       const labels = {
         'booster': 'Open Booster Pack',
         'booster-box': 'Open Booster Box',
@@ -324,6 +324,18 @@ function getCurrentSetConfig() {
         'starter-box': 'Open Starter Box'
       };
       dom.openBtn.textContent = labels[type] || 'Open Pack';
+
+      // Update product info text
+      const productInfoEl = document.getElementById('productInfo');
+      if (productInfoEl) {
+        const infoTexts = {
+          'booster': '15 cards • 11 commons, 3 uncommons, 1 rare',
+          'booster-box': '36 booster packs • 540 cards total',
+          'starter': '60 cards • 23 commons, 13 uncommons, 2 rares, 22 lands',
+          'starter-box': '10 starter decks • 600 cards total'
+        };
+        productInfoEl.textContent = infoTexts[type] || infoTexts['booster'];
+      }
     }
 
     function openProduct() {

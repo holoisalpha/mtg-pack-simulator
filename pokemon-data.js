@@ -202,11 +202,13 @@ function pickUniqueCards(pool, count, usedNames = new Set()) {
 // usedRares is optional - pass a Set to track rares across a box
 function generatePokemonPack(usedRares = null) {
   const pack = [];
+  const usedInPack = new Set(); // Track all card names used in this pack
 
   // 5 commons (mix of Pokemon and trainer commons) - no repeats in pack
   const commonPool = [...POKEMON_BASE_SET.commons, ...POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'common')];
-  const pickedCommons = pickUniqueCards(commonPool, 5);
+  const pickedCommons = pickUniqueCards(commonPool, 5, usedInPack);
   pickedCommons.forEach(card => {
+    usedInPack.add(card.name);
     pack.push({
       ...card,
       rarity: 'common',
@@ -214,10 +216,11 @@ function generatePokemonPack(usedRares = null) {
     });
   });
 
-  // 3 uncommons - no repeats in pack
+  // 3 uncommons - no repeats in pack (also avoiding commons already picked)
   const uncommonPool = [...POKEMON_BASE_SET.uncommons, ...POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'uncommon')];
-  const pickedUncommons = pickUniqueCards(uncommonPool, 3);
+  const pickedUncommons = pickUniqueCards(uncommonPool, 3, usedInPack);
   pickedUncommons.forEach(card => {
+    usedInPack.add(card.name);
     pack.push({
       ...card,
       rarity: 'uncommon',
