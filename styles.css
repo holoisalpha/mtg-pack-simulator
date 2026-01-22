@@ -1151,6 +1151,11 @@ button:disabled {
   opacity: 0.7;
 }
 
+/* Hide the old tooltip inside collection cards - we use the new price label instead */
+.collection-area .mini-card .card-price-tooltip {
+  display: none !important;
+}
+
 .collection-area .card-with-count .mini-card .card-price-tooltip {
   position: absolute !important;
   bottom: auto !important;
