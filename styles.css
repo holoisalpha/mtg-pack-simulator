@@ -1139,16 +1139,18 @@ button:disabled {
   position: relative;
 }
 
-.collection-area .mini-card .card-price-tooltip {
-  bottom: auto;
-  top: 100%;
-  margin-top: 2px;
+.collection-area .card-with-count .mini-card .card-price-tooltip {
+  position: absolute !important;
+  bottom: auto !important;
+  top: 105% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  margin-top: 0;
   font-size: 9px;
   font-weight: 500;
   opacity: 0.7 !important;
   background: transparent;
   color: var(--text-muted);
-  transition: opacity 0.2s ease;
 }
 
 .collection-area .mini-card:hover .card-price-tooltip {
@@ -1594,10 +1596,8 @@ button:disabled {
     margin-bottom: 18px;
   }
 
-  .collection-area .mini-card .card-price-tooltip {
-    bottom: auto;
-    top: 100%;
-    margin-top: 2px;
+  .collection-area .card-with-count .mini-card .card-price-tooltip {
+    top: 105% !important;
     font-size: 8px;
     opacity: 0.8 !important;
     color: #9ca3af;
@@ -1659,11 +1659,9 @@ button:disabled {
     margin-bottom: 18px;
   }
 
-  .collection-area .mini-card .card-price-tooltip {
-    bottom: auto;
-    top: 100%;
-    margin-top: 2px;
-    font-size: 8px;
+  .collection-area .card-with-count .mini-card .card-price-tooltip {
+    top: 105% !important;
+    font-size: 7px;
     padding: 2px 4px;
     opacity: 0.8 !important;
     color: #9ca3af;
