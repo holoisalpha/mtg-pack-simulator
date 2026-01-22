@@ -1442,10 +1442,7 @@ function getCurrentSetConfig() {
             cardPrice = getDefaultPrice(setCode, rarity);
           }
           const price = document.createElement('div');
-          price.style.fontSize = '8px';
-          price.style.color = 'rgba(255,255,255,0.5)';
-          price.style.marginTop = '3px';
-          price.style.paddingLeft = (entry.card.isPowerNine || entry.card.isDual) ? '26px' : '28px';
+          price.className = (entry.card.isPowerNine || entry.card.isDual) ? 'collection-price collection-price-special' : 'collection-price';
           price.textContent = formatPrice(cardPrice);
           outer.appendChild(price);
         }

@@ -1139,6 +1139,17 @@ button:disabled {
   margin: 8px 10px;
 }
 
+.collection-price {
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 3px;
+  padding-left: 30px;
+}
+
+.collection-price-special {
+  padding-left: 27px;
+}
+
 .empty {
   color: var(--text-muted);
   font-size: 0.875rem;
