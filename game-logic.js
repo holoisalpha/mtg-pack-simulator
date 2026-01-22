@@ -299,6 +299,13 @@ function getCurrentSetConfig() {
       if (dom.starterBoxBtn) {
         dom.starterBoxBtn.style.display = setConfig.hasStarter ? '' : 'none';
       }
+
+      // Center product buttons when only 2 products available
+      const productButtonsContainer = document.querySelector('#mtgFrame .product-buttons');
+      if (productButtonsContainer) {
+        productButtonsContainer.classList.toggle('two-products', !setConfig.hasStarter);
+      }
+
       // If current product is starter-related but set doesn't have it, switch to booster
       if (!setConfig.hasStarter && (productType === 'starter' || productType === 'starter-box')) {
         selectProduct('booster');

@@ -6,6 +6,21 @@ let pokemonPackOpen = false;
 let currentPokemonProduct = 'booster';
 let currentPokemonPackValue = 0;
 
+// Load saved game mode from localStorage
+const savedGameMode = localStorage.getItem('gameMode');
+if (savedGameMode === 'pokemon' || savedGameMode === 'mtg') {
+  currentGameMode = savedGameMode;
+}
+
+// Initialize to saved mode on page load
+document.addEventListener('DOMContentLoaded', () => {
+  if (currentGameMode === 'pokemon') {
+    // Force switch by temporarily setting to mtg
+    currentGameMode = 'mtg';
+    switchGameMode('pokemon');
+  }
+});
+
 // Toggle between MTG and Pokemon modes
 function toggleGameMode() {
   const newMode = currentGameMode === 'mtg' ? 'pokemon' : 'mtg';
@@ -15,6 +30,9 @@ function toggleGameMode() {
 function switchGameMode(mode) {
   if (mode === currentGameMode) return;
   currentGameMode = mode;
+
+  // Save game mode to localStorage
+  localStorage.setItem('gameMode', mode);
 
   const gameLogo = document.getElementById('gameLogo');
   const gameHeader = document.getElementById('gameHeader');

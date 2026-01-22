@@ -273,6 +273,10 @@ h1.subtitle {
   justify-content: center !important;
 }
 
+.product-buttons.two-products {
+  justify-content: center !important;
+}
+
 .set-info, .product-info {
   text-align: center;
   font-family: 'Times New Roman', Times, serif;
