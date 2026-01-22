@@ -1140,10 +1140,12 @@ button:disabled {
 }
 
 .collection-area .mini-card .card-price-tooltip {
-  bottom: -16px;
+  bottom: auto;
+  top: 100%;
+  margin-top: 2px;
   font-size: 9px;
   font-weight: 500;
-  opacity: 0.6 !important;
+  opacity: 0.7 !important;
   background: transparent;
   color: var(--text-muted);
   transition: opacity 0.2s ease;
@@ -1593,7 +1595,9 @@ button:disabled {
   }
 
   .collection-area .mini-card .card-price-tooltip {
-    bottom: -14px;
+    bottom: auto;
+    top: 100%;
+    margin-top: 2px;
     font-size: 8px;
     opacity: 0.8 !important;
     color: #9ca3af;
@@ -1656,7 +1660,9 @@ button:disabled {
   }
 
   .collection-area .mini-card .card-price-tooltip {
-    bottom: -14px;
+    bottom: auto;
+    top: 100%;
+    margin-top: 2px;
     font-size: 8px;
     padding: 2px 4px;
     opacity: 0.8 !important;
