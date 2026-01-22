@@ -42,6 +42,28 @@ A web-based Magic: The Gathering pack opening simulator for early MTG sets. Open
   - Starter Deck: 23 commons, 13 uncommons, 2 rares, 22 lands
   - No duplicate rares within a single box opening
 
+## Pokemon Mode
+
+Switch to Pokemon mode to open classic 1st Edition Base Set packs!
+
+### Supported Set
+
+| Set | Year | Cards |
+|-----|------|-------|
+| 1st Edition Base Set | 1999 | 102 |
+
+### Products
+
+- **Booster Pack**: 11 cards (5 commons, 3 uncommons, 1 energy, 1 trainer, 1 rare)
+- **Booster Box**: 36 packs (396 cards total)
+
+### Features
+
+- ~1 in 3 chance of pulling a holo rare
+- Special animations for chase cards (Charizard, Blastoise, Venusaur, Mewtwo)
+- Collection organized by Pokemon type (Fire, Water, Grass, Lightning, etc.)
+- Energy cards excluded from collection tracking
+
 ## Tech Stack
 
 - Vanilla HTML/CSS/JavaScript (no frameworks)
