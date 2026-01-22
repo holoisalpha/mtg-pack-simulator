@@ -3,40 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pack Rip Simulator</title>
+  <title>MTG Pack Rip Simulator</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
 </head>
 <body>
-  <!-- Game Mode Toggle -->
-  <div class="mode-toggle-container">
-    <button class="mode-toggle-btn active" id="mtgModeBtn" onclick="switchGameMode('mtg')">
-      Magic: The Gathering
-    </button>
-    <button class="mode-toggle-btn" id="pokemonModeBtn" onclick="switchGameMode('pokemon')">
-      Pokemon
-    </button>
-  </div>
-
-  <div class="header" id="gameHeader">
-    <img src="mtg-logo.png" alt="Magic: The Gathering" class="header-logo" id="gameLogo">
+  <div class="header">
+    <img src="mtg-logo.png" alt="Magic: The Gathering" class="header-logo">
     <h1 class="subtitle">PACK RIP SIMULATOR</h1>
   </div>
 
 
   <!-- MTG Frame Selector -->
-  <div class="mtg-frame" id="mtgFrame">
+  <div class="mtg-frame">
     <div class="frame-header">Select Your Set</div>
-    <div class="set-buttons" id="mtgSetButtons">
+    <div class="set-buttons">
       <button class="mtg-btn" data-set="lea" onclick="selectSet('lea')">Alpha</button>
       <button class="mtg-btn active" data-set="leb" onclick="selectSet('leb')">Beta</button>
       <button class="mtg-btn" data-set="2ed" onclick="selectSet('2ed')">Unlimited</button>
       <button class="mtg-btn" data-set="arn" onclick="selectSet('arn')"><img src="set-icons/arn.svg" class="set-icon" alt="">Arabian Nights</button>
       <button class="mtg-btn" data-set="leg" onclick="selectSet('leg')"><img src="set-icons/leg.svg" class="set-icon" alt="">Legends</button>
       <button class="mtg-btn" data-set="4ed" onclick="selectSet('4ed')">4th Edition</button>
-    </div>
-    <div class="set-buttons" id="pokemonSetButtons" style="display:none;">
-      <button class="pokemon-btn active" data-set="base1" onclick="selectSet('base1')">1st Edition Base Set</button>
     </div>
     <p class="set-info" id="setInfo">Limited Edition Beta • October 1993 • 302 Cards</p>
 
@@ -118,101 +105,47 @@
   
   <div class="collection">
     <h2>Collection (<span id="collCount">0</span> unique cards)</h2>
-
-    <!-- MTG Collection Sections -->
-    <div id="mtgCollection">
-      <!-- Power Nine Section -->
-      <div id="power9Section" class="collection-section power9-section" style="display:none;">
-        <h3 class="section-title power9-title">Power Nine</h3>
-        <div id="power9Area" class="collection-area power9-area"></div>
+    
+    <!-- Power Nine Section -->
+    <div id="power9Section" class="collection-section power9-section" style="display:none;">
+      <h3 class="section-title power9-title">Power Nine</h3>
+      <div id="power9Area" class="collection-area power9-area"></div>
+    </div>
+    
+    <!-- Dual Lands Section -->
+    <div id="dualSection" class="collection-section dual-section" style="display:none;">
+      <h3 class="section-title dual-title">Dual Lands</h3>
+      <div id="dualArea" class="collection-area dual-area"></div>
+    </div>
+    
+    <!-- Cards by Color -->
+    <div id="colorSections" class="color-sections">
+      <div id="whiteSection" class="collection-section color-section" style="display:none;">
+        <h3 class="section-title white-title">White</h3>
+        <div id="whiteArea" class="collection-area"></div>
       </div>
-
-      <!-- Dual Lands Section -->
-      <div id="dualSection" class="collection-section dual-section" style="display:none;">
-        <h3 class="section-title dual-title">Dual Lands</h3>
-        <div id="dualArea" class="collection-area dual-area"></div>
+      <div id="blueSection" class="collection-section color-section" style="display:none;">
+        <h3 class="section-title blue-title">Blue</h3>
+        <div id="blueArea" class="collection-area"></div>
       </div>
-
-      <!-- Cards by Color -->
-      <div id="colorSections" class="color-sections">
-        <div id="whiteSection" class="collection-section color-section" style="display:none;">
-          <h3 class="section-title white-title">White</h3>
-          <div id="whiteArea" class="collection-area"></div>
-        </div>
-        <div id="blueSection" class="collection-section color-section" style="display:none;">
-          <h3 class="section-title blue-title">Blue</h3>
-          <div id="blueArea" class="collection-area"></div>
-        </div>
-        <div id="blackSection" class="collection-section color-section" style="display:none;">
-          <h3 class="section-title black-title">Black</h3>
-          <div id="blackArea" class="collection-area"></div>
-        </div>
-        <div id="redSection" class="collection-section color-section" style="display:none;">
-          <h3 class="section-title red-title">Red</h3>
-          <div id="redArea" class="collection-area"></div>
-        </div>
-        <div id="greenSection" class="collection-section color-section" style="display:none;">
-          <h3 class="section-title green-title">Green</h3>
-          <div id="greenArea" class="collection-area"></div>
-        </div>
-        <div id="colorlessSection" class="collection-section color-section" style="display:none;">
-          <h3 class="section-title colorless-title">Artifacts</h3>
-          <div id="colorlessArea" class="collection-area"></div>
-        </div>
+      <div id="blackSection" class="collection-section color-section" style="display:none;">
+        <h3 class="section-title black-title">Black</h3>
+        <div id="blackArea" class="collection-area"></div>
+      </div>
+      <div id="redSection" class="collection-section color-section" style="display:none;">
+        <h3 class="section-title red-title">Red</h3>
+        <div id="redArea" class="collection-area"></div>
+      </div>
+      <div id="greenSection" class="collection-section color-section" style="display:none;">
+        <h3 class="section-title green-title">Green</h3>
+        <div id="greenArea" class="collection-area"></div>
+      </div>
+      <div id="colorlessSection" class="collection-section color-section" style="display:none;">
+        <h3 class="section-title colorless-title">Artifacts</h3>
+        <div id="colorlessArea" class="collection-area"></div>
       </div>
     </div>
-
-    <!-- Pokemon Collection Sections -->
-    <div id="pokemonCollection" style="display:none;">
-      <!-- Chase Cards Section (Charizard, Blastoise, Venusaur, Mewtwo) -->
-      <div id="chaseSection" class="collection-section chase-section" style="display:none;">
-        <h3 class="section-title chase-title">Chase Cards</h3>
-        <div id="chaseArea" class="collection-area chase-area"></div>
-      </div>
-
-      <!-- Holo Rares Section -->
-      <div id="holoSection" class="collection-section holo-section" style="display:none;">
-        <h3 class="section-title holo-title">Holo Rares</h3>
-        <div id="holoArea" class="collection-area holo-area"></div>
-      </div>
-
-      <!-- Pokemon by Type -->
-      <div id="pokemonTypeSections" class="pokemon-type-sections">
-        <div id="fireSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title fire-title">Fire</h3>
-          <div id="fireArea" class="collection-area"></div>
-        </div>
-        <div id="waterSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title water-title">Water</h3>
-          <div id="waterArea" class="collection-area"></div>
-        </div>
-        <div id="grassSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title grass-title">Grass</h3>
-          <div id="grassArea" class="collection-area"></div>
-        </div>
-        <div id="lightningSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title lightning-title">Lightning</h3>
-          <div id="lightningArea" class="collection-area"></div>
-        </div>
-        <div id="psychicSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title psychic-title">Psychic</h3>
-          <div id="psychicArea" class="collection-area"></div>
-        </div>
-        <div id="fightingSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title fighting-title">Fighting</h3>
-          <div id="fightingArea" class="collection-area"></div>
-        </div>
-        <div id="colorlessPokeSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title colorless-poke-title">Colorless</h3>
-          <div id="colorlessPokeArea" class="collection-area"></div>
-        </div>
-        <div id="trainerSection" class="collection-section pokemon-type-section" style="display:none;">
-          <h3 class="section-title trainer-title">Trainers</h3>
-          <div id="trainerArea" class="collection-area"></div>
-        </div>
-      </div>
-    </div>
-
+    
     <div id="emptyCollection" class="empty">Open packs to start your collection! (Lands are not collected)</div>
   </div>
     <script src="game.js"></script>
