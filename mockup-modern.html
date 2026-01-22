@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern/Sleek Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding-top: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .header h1 {
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      margin-bottom: 0.5rem;
+    }
+
+    .header .sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 2rem;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .set-dropdown {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      padding-right: 2.5rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      transition: all 0.2s ease;
+    }
+
+    .set-dropdown:hover {
+      background-color: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .set-dropdown option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .product-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .toggle-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .toggle-btn.active {
+      background: #d4af37;
+      color: #000;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .open-btn {
+      background: linear-gradient(135deg, #d4af37, #aa8a2a);
+      border: none;
+      color: #000;
+      padding: 1rem 2.5rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .open-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .skip-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.7);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .skip-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    .label {
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.75rem;
+      margin-top: 3rem;
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>MTG PACK RIP SIMULATOR</h1>
+    <p class="sub">Limited Edition Beta &bull; October 1993 &bull; 302 Cards</p>
+  </div>
+
+  <div class="nav-bar">
+    <select class="set-dropdown">
+      <option value="lea">Alpha (1993)</option>
+      <option value="leb" selected>Beta (1993)</option>
+      <option value="2ed">Unlimited (1993)</option>
+      <option value="arn">Arabian Nights (1993)</option>
+      <option value="leg">Legends (1994)</option>
+      <option value="4ed">4th Edition (1995)</option>
+    </select>
+
+    <div class="product-toggle">
+      <button class="toggle-btn active">Pack</button>
+      <button class="toggle-btn">Box</button>
+      <button class="toggle-btn">Starter</button>
+      <button class="toggle-btn">Starter Box</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="open-btn">Open Booster Pack</button>
+    <button class="skip-btn">Skip to End</button>
+  </div>
+
+  <p class="label">MODERN / SLEEK MOCKUP</p>
+
+  <script>
+    // Make buttons interactive for demo
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

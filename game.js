@@ -12,6 +12,141 @@ const SETS_CONFIG = {
 };
 
 let currentSetCode = 'leb'; // Default to Beta
+let gameMode = 'mtg'; // 'mtg' or 'pokemon'
+
+// Pokemon Set Configuration
+const POKEMON_SETS_CONFIG = {
+  base1: {
+    name: "Base Set",
+    fullName: "1st Edition Base Set",
+    code: "base1",
+    year: 1999,
+    releaseDate: "January 1999",
+    cardCount: 102,
+    hasStarter: false,
+    boosterSize: 11,
+    scryfallCode: null // Pokemon uses different API
+  }
+};
+
+// Pokemon Base Set 1st Edition Cards (102 cards)
+const BASE_SET_CARDS = {
+  holoRares: [
+    { name: "Alakazam", number: 1, type: "psychic", hp: 80, rarity: "holo", isChase: false },
+    { name: "Blastoise", number: 2, type: "water", hp: 100, rarity: "holo", isChase: true },
+    { name: "Chansey", number: 3, type: "colorless", hp: 120, rarity: "holo", isChase: false },
+    { name: "Charizard", number: 4, type: "fire", hp: 120, rarity: "holo", isChase: true },
+    { name: "Clefairy", number: 5, type: "colorless", hp: 40, rarity: "holo", isChase: false },
+    { name: "Gyarados", number: 6, type: "water", hp: 100, rarity: "holo", isChase: false },
+    { name: "Hitmonchan", number: 7, type: "fighting", hp: 70, rarity: "holo", isChase: false },
+    { name: "Machamp", number: 8, type: "fighting", hp: 100, rarity: "holo", isChase: false },
+    { name: "Magneton", number: 9, type: "lightning", hp: 60, rarity: "holo", isChase: false },
+    { name: "Mewtwo", number: 10, type: "psychic", hp: 60, rarity: "holo", isChase: true },
+    { name: "Nidoking", number: 11, type: "grass", hp: 90, rarity: "holo", isChase: false },
+    { name: "Ninetales", number: 12, type: "fire", hp: 80, rarity: "holo", isChase: false },
+    { name: "Poliwrath", number: 13, type: "water", hp: 90, rarity: "holo", isChase: false },
+    { name: "Raichu", number: 14, type: "lightning", hp: 80, rarity: "holo", isChase: false },
+    { name: "Venusaur", number: 15, type: "grass", hp: 100, rarity: "holo", isChase: true },
+    { name: "Zapdos", number: 16, type: "lightning", hp: 90, rarity: "holo", isChase: false }
+  ],
+  rares: [
+    { name: "Beedrill", number: 17, type: "grass", hp: 80, rarity: "rare" },
+    { name: "Dragonair", number: 18, type: "colorless", hp: 80, rarity: "rare" },
+    { name: "Dugtrio", number: 19, type: "fighting", hp: 70, rarity: "rare" },
+    { name: "Electabuzz", number: 20, type: "lightning", hp: 70, rarity: "rare" },
+    { name: "Electrode", number: 21, type: "lightning", hp: 80, rarity: "rare" },
+    { name: "Pidgeotto", number: 22, type: "colorless", hp: 60, rarity: "rare" },
+    { name: "Arcanine", number: 23, type: "fire", hp: 100, rarity: "rare" },
+    { name: "Charmeleon", number: 24, type: "fire", hp: 80, rarity: "rare" },
+    { name: "Dewgong", number: 25, type: "water", hp: 80, rarity: "rare" },
+    { name: "Dratini", number: 26, type: "colorless", hp: 40, rarity: "rare" },
+    { name: "Farfetch'd", number: 27, type: "colorless", hp: 50, rarity: "rare" },
+    { name: "Growlithe", number: 28, type: "fire", hp: 60, rarity: "rare" },
+    { name: "Haunter", number: 29, type: "psychic", hp: 60, rarity: "rare" },
+    { name: "Ivysaur", number: 30, type: "grass", hp: 60, rarity: "rare" },
+    { name: "Jynx", number: 31, type: "psychic", hp: 70, rarity: "rare" },
+    { name: "Kadabra", number: 32, type: "psychic", hp: 60, rarity: "rare" },
+    { name: "Kakuna", number: 33, type: "grass", hp: 80, rarity: "rare" },
+    { name: "Machoke", number: 34, type: "fighting", hp: 80, rarity: "rare" },
+    { name: "Magikarp", number: 35, type: "water", hp: 30, rarity: "rare" },
+    { name: "Magmar", number: 36, type: "fire", hp: 70, rarity: "rare" },
+    { name: "Nidorino", number: 37, type: "grass", hp: 60, rarity: "rare" },
+    { name: "Poliwhirl", number: 38, type: "water", hp: 60, rarity: "rare" },
+    { name: "Porygon", number: 39, type: "colorless", hp: 30, rarity: "rare" },
+    { name: "Raticate", number: 40, type: "colorless", hp: 60, rarity: "rare" },
+    { name: "Seel", number: 41, type: "water", hp: 60, rarity: "rare" },
+    { name: "Wartortle", number: 42, type: "water", hp: 70, rarity: "rare" }
+  ],
+  uncommons: [
+    { name: "Abra", number: 43, type: "psychic", hp: 30, rarity: "uncommon" },
+    { name: "Bulbasaur", number: 44, type: "grass", hp: 40, rarity: "uncommon" },
+    { name: "Caterpie", number: 45, type: "grass", hp: 40, rarity: "uncommon" },
+    { name: "Charmander", number: 46, type: "fire", hp: 50, rarity: "uncommon" },
+    { name: "Diglett", number: 47, type: "fighting", hp: 30, rarity: "uncommon" },
+    { name: "Doduo", number: 48, type: "colorless", hp: 50, rarity: "uncommon" },
+    { name: "Drowzee", number: 49, type: "psychic", hp: 50, rarity: "uncommon" },
+    { name: "Gastly", number: 50, type: "psychic", hp: 30, rarity: "uncommon" },
+    { name: "Koffing", number: 51, type: "grass", hp: 50, rarity: "uncommon" },
+    { name: "Machop", number: 52, type: "fighting", hp: 50, rarity: "uncommon" },
+    { name: "Magnemite", number: 53, type: "lightning", hp: 40, rarity: "uncommon" },
+    { name: "Metapod", number: 54, type: "grass", hp: 70, rarity: "uncommon" },
+    { name: "Nidoran M", number: 55, type: "grass", hp: 40, rarity: "uncommon" },
+    { name: "Onix", number: 56, type: "fighting", hp: 90, rarity: "uncommon" },
+    { name: "Pidgey", number: 57, type: "colorless", hp: 40, rarity: "uncommon" },
+    { name: "Pikachu", number: 58, type: "lightning", hp: 40, rarity: "uncommon" },
+    { name: "Poliwag", number: 59, type: "water", hp: 40, rarity: "uncommon" },
+    { name: "Ponyta", number: 60, type: "fire", hp: 40, rarity: "uncommon" },
+    { name: "Rattata", number: 61, type: "colorless", hp: 30, rarity: "uncommon" },
+    { name: "Sandshrew", number: 62, type: "fighting", hp: 40, rarity: "uncommon" },
+    { name: "Squirtle", number: 63, type: "water", hp: 40, rarity: "uncommon" },
+    { name: "Starmie", number: 64, type: "water", hp: 60, rarity: "uncommon" },
+    { name: "Staryu", number: 65, type: "water", hp: 40, rarity: "uncommon" },
+    { name: "Tangela", number: 66, type: "grass", hp: 50, rarity: "uncommon" },
+    { name: "Voltorb", number: 67, type: "lightning", hp: 40, rarity: "uncommon" },
+    { name: "Vulpix", number: 68, type: "fire", hp: 50, rarity: "uncommon" },
+    { name: "Weedle", number: 69, type: "grass", hp: 40, rarity: "uncommon" }
+  ],
+  commons: [
+    { name: "Clefairy Doll", number: 70, type: "trainer", rarity: "common" },
+    { name: "Computer Search", number: 71, type: "trainer", rarity: "common" },
+    { name: "Devolution Spray", number: 72, type: "trainer", rarity: "common" },
+    { name: "Impostor Professor Oak", number: 73, type: "trainer", rarity: "common" },
+    { name: "Item Finder", number: 74, type: "trainer", rarity: "common" },
+    { name: "Lass", number: 75, type: "trainer", rarity: "common" },
+    { name: "Pokemon Breeder", number: 76, type: "trainer", rarity: "common" },
+    { name: "Pokemon Trader", number: 77, type: "trainer", rarity: "common" },
+    { name: "Scoop Up", number: 78, type: "trainer", rarity: "common" },
+    { name: "Super Energy Removal", number: 79, type: "trainer", rarity: "common" },
+    { name: "Defender", number: 80, type: "trainer", rarity: "common" },
+    { name: "Energy Retrieval", number: 81, type: "trainer", rarity: "common" },
+    { name: "Full Heal", number: 82, type: "trainer", rarity: "common" },
+    { name: "Maintenance", number: 83, type: "trainer", rarity: "common" },
+    { name: "PlusPower", number: 84, type: "trainer", rarity: "common" },
+    { name: "Pokemon Center", number: 85, type: "trainer", rarity: "common" },
+    { name: "Pokemon Flute", number: 86, type: "trainer", rarity: "common" },
+    { name: "Pokedex", number: 87, type: "trainer", rarity: "common" },
+    { name: "Professor Oak", number: 88, type: "trainer", rarity: "common" },
+    { name: "Revive", number: 89, type: "trainer", rarity: "common" },
+    { name: "Super Potion", number: 90, type: "trainer", rarity: "common" },
+    { name: "Bill", number: 91, type: "trainer", rarity: "common" },
+    { name: "Energy Removal", number: 92, type: "trainer", rarity: "common" },
+    { name: "Gust of Wind", number: 93, type: "trainer", rarity: "common" },
+    { name: "Potion", number: 94, type: "trainer", rarity: "common" },
+    { name: "Switch", number: 95, type: "trainer", rarity: "common" },
+    { name: "Double Colorless Energy", number: 96, type: "energy", rarity: "common" }
+  ],
+  energy: [
+    { name: "Fighting Energy", number: 97, type: "energy", rarity: "energy" },
+    { name: "Fire Energy", number: 98, type: "energy", rarity: "energy" },
+    { name: "Grass Energy", number: 99, type: "energy", rarity: "energy" },
+    { name: "Lightning Energy", number: 100, type: "energy", rarity: "energy" },
+    { name: "Psychic Energy", number: 101, type: "energy", rarity: "energy" },
+    { name: "Water Energy", number: 102, type: "energy", rarity: "energy" }
+  ]
+};
+
+// Pokemon energy cards to exclude (like basic lands in MTG)
+const POKEMON_ENERGY = ['Fighting Energy', 'Fire Energy', 'Grass Energy', 'Lightning Energy', 'Psychic Energy', 'Water Energy'];
 
 // Pack images for different sets
 const PACK_IMAGES = {

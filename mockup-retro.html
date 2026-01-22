@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro MTG Mockup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background:
+        radial-gradient(ellipse at center, #2a2a3a 0%, #1a1a24 60%, #0d0d12 100%);
+      min-height: 100vh;
+      font-family: 'Times New Roman', Times, serif;
+      padding: 2rem 1rem;
+    }
+
+    .header {
+      text-align: center;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      color: #d4af37;
+      font-size: 2rem;
+      font-weight: normal;
+      letter-spacing: 0.15em;
+      text-shadow:
+        0 0 10px rgba(212, 175, 55, 0.5),
+        2px 2px 4px rgba(0,0,0,0.8);
+      margin-bottom: 0.5rem;
+    }
+
+    .header .sub {
+      color: #a89878;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    .mtg-frame {
+      background: linear-gradient(to bottom, #c9b896 0%, #b8a880 50%, #a89068 100%);
+      border: 4px solid #1a1a1a;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin: 0 auto 1.5rem;
+      max-width: 720px;
+      box-shadow:
+        inset 0 0 0 2px #d4af37,
+        inset 0 0 0 5px #1a1a1a,
+        inset 0 2px 4px rgba(255,255,255,0.3),
+        inset 0 -2px 4px rgba(0,0,0,0.2),
+        0 8px 24px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .frame-header {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: #4a3d2a;
+      text-align: center;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .frame-divider {
+      height: 2px;
+      background: linear-gradient(to right,
+        transparent 0%,
+        #8b7355 20%,
+        #6b5335 50%,
+        #8b7355 80%,
+        transparent 100%
+      );
+      margin: 1rem 0;
+      position: relative;
+    }
+
+    .frame-divider::before {
+      content: '◆';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(to bottom, #c9b896, #a89068);
+      padding: 0 0.5rem;
+      color: #5c4a32;
+      font-size: 0.6rem;
+    }
+
+    .set-buttons, .product-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .mtg-btn {
+      background: linear-gradient(to bottom,
+        #f4e8d0 0%,
+        #e8d8b8 20%,
+        #d8c8a0 80%,
+        #c8b890 100%
+      );
+      border: 2px solid #5c4a32;
+      border-radius: 5px;
+      padding: 0.5rem 0.9rem;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 0.9rem;
+      color: #2a2018;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.5),
+        inset 0 -1px 2px rgba(0,0,0,0.15),
+        0 2px 4px rgba(0,0,0,0.3);
+      transition: all 0.15s ease;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    }
+
+    .mtg-btn:hover {
+      background: linear-gradient(to bottom,
+        #fffcf0 0%,
+        #f8ecd0 20%,
+        #e8d8b8 80%,
+        #d8c8a8 100%
+      );
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        inset 0 -1px 2px rgba(0,0,0,0.1),
+        0 3px 6px rgba(0,0,0,0.35);
+    }
+
+    .mtg-btn.active {
+      background: linear-gradient(to bottom,
+        #e8c84a 0%,
+        #d4af37 20%,
+        #b89830 80%,
+        #a08028 100%
+      );
+      color: #1a1208;
+      border-color: #4a3d20;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -2px 4px rgba(0,0,0,0.25),
+        0 1px 3px rgba(0,0,0,0.4);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .controls-frame {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.5rem;
+    }
+
+    .open-btn {
+      background: linear-gradient(to bottom,
+        #e8c84a 0%,
+        #d4af37 30%,
+        #b89830 70%,
+        #9a7828 100%
+      );
+      border: 3px solid #3d3020;
+      border-radius: 8px;
+      padding: 0.9rem 2rem;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 1.15rem;
+      color: #1a1208;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.4),
+        inset 0 -2px 4px rgba(0,0,0,0.2),
+        0 4px 8px rgba(0,0,0,0.5),
+        0 0 20px rgba(212, 175, 55, 0.2);
+      transition: all 0.15s ease;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .open-btn:hover {
+      background: linear-gradient(to bottom,
+        #f0d860 0%,
+        #e4bf47 30%,
+        #c8a838 70%,
+        #aa8830 100%
+      );
+      transform: translateY(-2px);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.5),
+        inset 0 -2px 4px rgba(0,0,0,0.2),
+        0 6px 12px rgba(0,0,0,0.5),
+        0 0 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .skip-btn {
+      background: linear-gradient(to bottom,
+        #4a4a5a 0%,
+        #3a3a48 50%,
+        #2a2a36 100%
+      );
+      border: 2px solid #1a1a24;
+      border-radius: 6px;
+      padding: 0.8rem 1.2rem;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 0.95rem;
+      color: #a0a0b0;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        0 2px 4px rgba(0,0,0,0.4);
+      transition: all 0.15s ease;
+    }
+
+    .skip-btn:hover {
+      background: linear-gradient(to bottom,
+        #5a5a6a 0%,
+        #4a4a58 50%,
+        #3a3a46 100%
+      );
+      color: #d0d0e0;
+    }
+
+    .label {
+      text-align: center;
+      color: #5a5040;
+      font-size: 0.7rem;
+      margin-top: 2rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>MTG PACK RIP SIMULATOR</h1>
+    <p class="sub">Limited Edition Beta &bull; October 1993 &bull; 302 Cards</p>
+  </div>
+
+  <div class="mtg-frame">
+    <div class="frame-header">Select Your Set</div>
+    <div class="set-buttons">
+      <button class="mtg-btn">Alpha</button>
+      <button class="mtg-btn active">Beta</button>
+      <button class="mtg-btn">Unlimited</button>
+      <button class="mtg-btn">Arabian Nights</button>
+      <button class="mtg-btn">Legends</button>
+      <button class="mtg-btn">4th Edition</button>
+    </div>
+
+    <div class="frame-divider"></div>
+
+    <div class="frame-header">Select Product</div>
+    <div class="product-buttons">
+      <button class="mtg-btn active">Booster Pack</button>
+      <button class="mtg-btn">Booster Box</button>
+      <button class="mtg-btn">Starter Deck</button>
+      <button class="mtg-btn">Starter Box</button>
+    </div>
+  </div>
+
+  <div class="controls-frame">
+    <button class="open-btn">Open Booster Pack</button>
+    <button class="skip-btn">Skip to End</button>
+  </div>
+
+  <p class="label">Retro MTG Aesthetic Mockup</p>
+
+  <script>
+    // Make set buttons interactive
+    document.querySelectorAll('.set-buttons .mtg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.set-buttons .mtg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Make product buttons interactive
+    document.querySelectorAll('.product-buttons .mtg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.product-buttons .mtg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
