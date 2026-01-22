@@ -18,6 +18,7 @@ function getCardPool() {
     case '2ed': return UNLIMITED_CARDS;
     case 'arn': return ARN_CARDS;
     case 'leg': return LEG_CARDS;
+    case 'atq': return ATQ_CARDS;
     case '4ed': return FED_CARDS;
     default: return BETA_CARDS;
   }
@@ -281,6 +282,9 @@ function getCurrentSetConfig() {
 
       // Update pack image based on set
       updatePackImage(setCode);
+
+      // Refresh product info for set-specific pack sizes
+      selectProduct(productType);
     }
 
     function updatePackImage(setCode) {
@@ -328,7 +332,13 @@ function getCurrentSetConfig() {
       // Update product info text
       const productInfoEl = document.getElementById('productInfo');
       if (productInfoEl) {
-        const infoTexts = {
+        const is8CardSet = (currentSetCode === 'arn' || currentSetCode === 'atq');
+        const infoTexts = is8CardSet ? {
+          'booster': '8 cards • 5-6 commons, 2 uncommons, 0-1 rare',
+          'booster-box': '60 booster packs • ~480 cards total',
+          'starter': '60 cards • 23 commons, 13 uncommons, 2 rares, 22 lands',
+          'starter-box': '10 starter decks • 600 cards total'
+        } : {
           'booster': '15 cards • 11 commons, 3 uncommons, 1 rare',
           'booster-box': '36 booster packs • 540 cards total',
           'starter': '60 cards • 23 commons, 13 uncommons, 2 rares, 22 lands',
@@ -362,12 +372,14 @@ function getCurrentSetConfig() {
       const cardPool = getCardPool();
       const setConfig = getCurrentSetConfig();
 
-      // Arabian Nights had 8-card boosters (different composition)
-      if (currentSetCode === 'arn') {
-        // ARN: 6 commons, 1-2 uncommons, 0-1 rare
-        const commons = pickRandomCards(cardPool.commons, 6);
-        const uncommons = pickRandomCards(cardPool.uncommons, Math.random() < 0.5 ? 1 : 2);
-        const rare = Math.random() < 0.3 ? pickRandomCards(cardPool.rares, 1) : [];
+      // Arabian Nights and Antiquities had 8-card boosters (different composition)
+      if (currentSetCode === 'arn' || currentSetCode === 'atq') {
+        // ARN/ATQ: 6 commons, 2 uncommons OR 5 commons, 2 uncommons, 1 rare
+        const hasRare = Math.random() < 0.4; // ~40% chance of rare
+        const numCommons = hasRare ? 5 : 6;
+        const commons = pickRandomCards(cardPool.commons, numCommons);
+        const uncommons = pickRandomCards(cardPool.uncommons, 2);
+        const rare = hasRare ? pickRandomCards(cardPool.rares, 1) : [];
         currentPack = [...commons, ...uncommons, ...rare];
       } else {
         // Standard 15-card booster: 11 commons, 3 uncommons, 1 rare
@@ -576,7 +588,7 @@ function getCurrentSetConfig() {
     
     function openBoosterBox() {
       const cardPool = getCardPool();
-      const packsPerBox = currentSetCode === 'arn' ? 60 : 36;
+      const packsPerBox = (currentSetCode === 'arn' || currentSetCode === 'atq') ? 60 : 36;
       
       const allCards = [];
       const power9Pulled = [];
@@ -596,11 +608,13 @@ function getCurrentSetConfig() {
       // Generate all packs
       for (let p = 0; p < packsPerBox; p++) {
         let packCards;
-        if (currentSetCode === 'arn') {
-          // ARN: 6 commons, 1-2 uncommons, 0-1 rare (8-card packs)
-          const commons = pickRandomCards(cardPool.commons, 6);
-          const uncommons = pickRandomCards(cardPool.uncommons, Math.random() < 0.5 ? 1 : 2);
-          const rare = (Math.random() < 0.3) ? [pickUniqueRare()].filter(Boolean) : [];
+        if (currentSetCode === 'arn' || currentSetCode === 'atq') {
+          // ARN/ATQ: 8-card packs - 6 commons, 2 uncommons OR 5 commons, 2 uncommons, 1 rare
+          const hasRare = Math.random() < 0.4;
+          const numCommons = hasRare ? 5 : 6;
+          const commons = pickRandomCards(cardPool.commons, numCommons);
+          const uncommons = pickRandomCards(cardPool.uncommons, 2);
+          const rare = hasRare ? [pickUniqueRare()].filter(Boolean) : [];
           packCards = [...commons, ...uncommons, ...rare];
         } else {
           // Standard 15-card booster: 11 commons, 3 uncommons, 1 rare
