@@ -351,8 +351,11 @@ h1.subtitle {
 }
 
 .controls button {
-  width: 180px;
+  min-width: 200px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button {
