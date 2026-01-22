@@ -1404,6 +1404,9 @@ button:disabled {
 
   .controls button {
     flex: 1;
+    width: auto;
+    min-width: auto;
+    max-width: none;
     padding: var(--space-sm) var(--space-xs);
     white-space: nowrap;
     display: flex;
