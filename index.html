@@ -99,6 +99,8 @@
     </div>
     <div class="card-info">
       <div class="card-counter">Card <span id="currentCard">0</span> of <span id="totalCards">15</span></div>
+      <div class="card-value" id="cardValue" style="display:none;"></div>
+      <div class="pack-value" id="packValue" style="display:none;">Pack Value: <span id="packValueAmount">$0</span></div>
       <div class="card-hint" id="cardHint">Tap for next card</div>
     </div>
     <div class="revealed-row" id="revealedRow"></div>
@@ -159,6 +161,7 @@
   <!-- MTG Collection -->
   <div class="collection" id="mtgCollection" style="display:none;">
     <h2>Collection (<span id="collCount">0</span> unique cards)</h2>
+    <div class="collection-value" id="collectionValue">Total Value: <span id="collectionValueAmount">$0</span></div>
 
     <!-- Power Nine Section -->
     <div id="power9Section" class="collection-section power9-section" style="display:none;">
@@ -270,6 +273,7 @@
 
     <script src="card-data.js"></script>
     <script src="atq-data.js"></script>
+    <script src="price-data.js"></script>
     <script src="game-logic.js"></script>
     <script src="pokemon-data.js"></script>
     <script src="pokemon-mode.js"></script>

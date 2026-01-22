@@ -93,9 +93,17 @@ function getCurrentSetConfig() {
       mainCardArea: $('mainCardArea'),
       power9Flash: $('power9Flash'),
       collCount: $('collCount'),
-      mtgCollection: $('mtgCollection')
+      mtgCollection: $('mtgCollection'),
+      cardValue: $('cardValue'),
+      packValue: $('packValue'),
+      packValueAmount: $('packValueAmount'),
+      collectionValue: $('collectionValue'),
+      collectionValueAmount: $('collectionValueAmount')
     };
-    
+
+    // Track pack value
+    let currentPackValue = 0;
+
     // === DISPLAY MODE ===
     // Set to false for fast preview (no external images), true for full art
     const USE_CARD_ART = new URLSearchParams(window.location.search).get('art') !== 'false';
@@ -114,7 +122,8 @@ function getCurrentSetConfig() {
       return '📜';
     }
     
-    function createCardElement(card, size = 'full', animationType = 'normal') {
+    function createCardElement(card, size = 'full', animationType = 'normal', setCodeOverride = null) {
+      const priceSetCode = setCodeOverride || currentSetCode;
       const div = document.createElement('div');
       const animClass = { rare: 'card-reveal-rare', power9: 'card-reveal-power9', none: '', normal: 'card-reveal' }[animationType];
       
@@ -159,10 +168,27 @@ function getCurrentSetConfig() {
         `;
       }
 
+      // Calculate card price for tooltip/display
+      if (typeof getCardPrice === 'function') {
+        let cardPrice = getCardPrice(card.name, priceSetCode);
+        if (cardPrice === null) {
+          const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
+          cardPrice = getDefaultPrice(priceSetCode, rarity);
+        }
+        div.dataset.price = cardPrice;
+        div.dataset.priceFormatted = formatPrice(cardPrice);
+      }
+
       // Add click handler for mini cards to show enlarged view
       if (size === 'mini') {
         div.style.cursor = 'pointer';
         div.addEventListener('click', () => showCardEnlarged(card));
+
+        // Add price tooltip for mini cards
+        const tooltip = document.createElement('div');
+        tooltip.className = 'card-price-tooltip';
+        tooltip.textContent = div.dataset.priceFormatted || '';
+        div.appendChild(tooltip);
       }
 
       return div;
@@ -286,6 +312,12 @@ function getCurrentSetConfig() {
 
       // Refresh product info for set-specific pack sizes
       selectProduct(productType);
+
+      // Preload prices for this set in the background
+      if (typeof preloadSetPrices === 'function') {
+        const cardPool = getCardPool();
+        preloadSetPrices(setCode, cardPool);
+      }
     }
 
     function updatePackImage(setCode) {
@@ -391,9 +423,10 @@ function getCurrentSetConfig() {
       }
 
       packCount++;
+      currentPackValue = 0;
       dom.openBtn.disabled = true;
       dom.skipBtn.disabled = false;
-      
+
       dom.alert.textContent = '';
       dom.totalCards.textContent = currentPack.length;
       dom.currentCard.textContent = '0';
@@ -402,6 +435,13 @@ function getCurrentSetConfig() {
       dom.starterContainer.style.display = 'none';
       dom.revealContainer.style.display = 'none';
       dom.boosterPack.classList.remove('opening');
+
+      // Reset value displays
+      if (dom.cardValue) dom.cardValue.style.display = 'none';
+      if (dom.packValue) {
+        dom.packValue.style.display = 'block';
+        dom.packValueAmount.textContent = '$0';
+      }
 
       // Auto-scroll to pack
       setTimeout(() => {
@@ -440,9 +480,10 @@ function getCurrentSetConfig() {
       currentPack = [...nonRares, ...rares];
 
       starterCount++;
+      currentPackValue = 0;
       dom.openBtn.disabled = true;
       dom.skipBtn.disabled = false;
-      
+
       dom.alert.textContent = '';
       dom.totalCards.textContent = currentPack.length;
       dom.currentCard.textContent = '0';
@@ -451,6 +492,13 @@ function getCurrentSetConfig() {
       dom.starterContainer.style.display = 'flex';
       dom.revealContainer.style.display = 'none';
       dom.starterDeck.classList.remove('opening');
+
+      // Reset value displays
+      if (dom.cardValue) dom.cardValue.style.display = 'none';
+      if (dom.packValue) {
+        dom.packValue.style.display = 'block';
+        dom.packValueAmount.textContent = '$0';
+      }
 
       // Auto-scroll to starter deck
       setTimeout(() => {
@@ -523,10 +571,45 @@ function getCurrentSetConfig() {
       // Update rarity label
       dom.rarityLabel.style.display = 'inline-block';
       dom.rarityLabel.className = 'rarity-label rarity-' + card.rarity;
-      dom.rarityLabel.textContent = card.isPowerNine ? '⭐ POWER 9 ⭐' 
-        : card.isDual ? '🌈 DUAL LAND' 
+      dom.rarityLabel.textContent = card.isPowerNine ? '⭐ POWER 9 ⭐'
+        : card.isDual ? '🌈 DUAL LAND'
         : card.rarity;
-      
+
+      // Calculate and display card value
+      if (dom.cardValue && typeof getCardPrice === 'function') {
+        let cardPrice = getCardPrice(card.name, currentSetCode);
+        if (cardPrice === null) {
+          // Use default price based on rarity
+          const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
+          cardPrice = getDefaultPrice(currentSetCode, rarity);
+        }
+
+        // Update running total
+        currentPackValue += cardPrice;
+
+        // Display card value with appropriate styling
+        dom.cardValue.style.display = 'inline-block';
+        dom.cardValue.textContent = formatPrice(cardPrice);
+        dom.cardValue.className = 'card-value';
+
+        if (cardPrice >= 10000) {
+          dom.cardValue.classList.add('value-legendary');
+        } else if (cardPrice >= 1000) {
+          dom.cardValue.classList.add('value-epic');
+        } else if (cardPrice >= 200) {
+          dom.cardValue.classList.add('value-high');
+        } else if (cardPrice >= 50) {
+          dom.cardValue.classList.add('value-medium');
+        } else {
+          dom.cardValue.classList.add('value-low');
+        }
+
+        // Update pack running total
+        if (dom.packValueAmount) {
+          dom.packValueAmount.textContent = formatPriceFull(currentPackValue);
+        }
+      }
+
       checkSpecial(card);
     }
     
@@ -539,11 +622,31 @@ function getCurrentSetConfig() {
       dom.starterContainer.style.display = 'none';
       dom.revealContainer.style.display = 'flex';
 
+      // Calculate total pack value when skipping
+      currentPackValue = 0;
       while (currentIndex < currentPack.length) {
-        dom.revealedRow.appendChild(createCardElement(currentPack[currentIndex], 'mini', 'none'));
-        checkSpecial(currentPack[currentIndex]);
+        const card = currentPack[currentIndex];
+        dom.revealedRow.appendChild(createCardElement(card, 'mini', 'none'));
+        checkSpecial(card);
+
+        // Add to pack value
+        if (typeof getCardPrice === 'function') {
+          let cardPrice = getCardPrice(card.name, currentSetCode);
+          if (cardPrice === null) {
+            const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
+            cardPrice = getDefaultPrice(currentSetCode, rarity);
+          }
+          currentPackValue += cardPrice;
+        }
+
         currentIndex++;
       }
+
+      // Update pack value display
+      if (dom.packValueAmount) {
+        dom.packValueAmount.textContent = formatPriceFull(currentPackValue);
+      }
+
       finishPack();
     }
     
@@ -585,6 +688,9 @@ function getCurrentSetConfig() {
       dom.skipBtn.disabled = true;
       dom.cardHint.textContent = '';
       dom.rarityLabel.style.display = 'none';
+
+      // Hide card value but keep pack total visible
+      if (dom.cardValue) dom.cardValue.style.display = 'none';
     }
     
     function checkSpecial(card) {
@@ -600,12 +706,13 @@ function getCurrentSetConfig() {
     function openBoosterBox() {
       const cardPool = getCardPool();
       const packsPerBox = (currentSetCode === 'arn' || currentSetCode === 'atq') ? 60 : 36;
-      
+
       const allCards = [];
       const power9Pulled = [];
       const dualsPulled = [];
       const raresPulled = [];
       const usedRareNames = new Set(); // Track pulled rares to avoid duplicates
+      let boxTotalValue = 0;
       
       // Helper to pick a rare that hasn't been pulled yet
       function pickUniqueRare() {
@@ -637,11 +744,21 @@ function getCurrentSetConfig() {
         }
         allCards.push(...packCards);
         
-        // Track special cards
+        // Track special cards and calculate value
         packCards.forEach(card => {
           if (card.isPowerNine) power9Pulled.push(card);
           else if (card.isDual) dualsPulled.push(card);
           else if (card.rarity === 'rare') raresPulled.push(card);
+
+          // Calculate card value
+          if (typeof getCardPrice === 'function') {
+            let cardPrice = getCardPrice(card.name, currentSetCode);
+            if (cardPrice === null) {
+              const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
+              cardPrice = getDefaultPrice(currentSetCode, rarity);
+            }
+            boxTotalValue += cardPrice;
+          }
         });
       }
       
@@ -663,19 +780,20 @@ function getCurrentSetConfig() {
       });
       
       // Show results
-      showBoxResults('booster', packsPerBox, allCards.length, cardsAdded, power9Pulled, dualsPulled, raresPulled);
+      showBoxResults('booster', packsPerBox, allCards.length, cardsAdded, power9Pulled, dualsPulled, raresPulled, boxTotalValue);
       updateCollection();
     }
     
     function openStarterBox() {
       const cardPool = getCardPool();
       const decksPerBox = 10;
-      
+
       const allCards = [];
       const power9Pulled = [];
       const dualsPulled = [];
       const raresPulled = [];
       const usedRareNames = new Set(); // Track pulled rares to avoid duplicates
+      let boxTotalValue = 0;
       
       // Helper to pick rares that haven't been pulled yet
       function pickUniqueRares(count) {
@@ -712,11 +830,21 @@ function getCurrentSetConfig() {
         const deckCards = [...commons, ...uncommons, ...lands, ...rares];
         allCards.push(...deckCards);
         
-        // Track special cards
+        // Track special cards and calculate value
         deckCards.forEach(card => {
           if (card.isPowerNine) power9Pulled.push(card);
           else if (card.isDual) dualsPulled.push(card);
           else if (card.rarity === 'rare') raresPulled.push(card);
+
+          // Calculate card value
+          if (typeof getCardPrice === 'function') {
+            let cardPrice = getCardPrice(card.name, currentSetCode);
+            if (cardPrice === null) {
+              const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
+              cardPrice = getDefaultPrice(currentSetCode, rarity);
+            }
+            boxTotalValue += cardPrice;
+          }
         });
       }
       
@@ -738,22 +866,27 @@ function getCurrentSetConfig() {
       });
       
       // Show results
-      showBoxResults('starter', decksPerBox, allCards.length, cardsAdded, power9Pulled, dualsPulled, raresPulled);
+      showBoxResults('starter', decksPerBox, allCards.length, cardsAdded, power9Pulled, dualsPulled, raresPulled, boxTotalValue);
       updateCollection();
     }
-    
-    function showBoxResults(type, productCount, totalCards, cardsAdded, power9, duals, rares) {
+
+    function showBoxResults(type, productCount, totalCards, cardsAdded, power9, duals, rares, boxValue) {
       const isBooster = type === 'booster';
       const productName = isBooster ? 'Booster Box' : 'Starter Box';
       const unitName = isBooster ? 'packs' : 'decks';
-      
+
       dom.boxResultsTitle.textContent = `${productName} Opened!`;
-      
+
       // Stats
+      const valueDisplay = typeof formatPriceFull === 'function' ? formatPriceFull(boxValue || 0) : '$0';
       dom.boxStats.innerHTML = `
         <div class="box-stat">
           <div class="box-stat-value">${productCount}</div>
           <div class="box-stat-label">${unitName}</div>
+        </div>
+        <div class="box-stat box-stat-value-highlight">
+          <div class="box-stat-value">${valueDisplay}</div>
+          <div class="box-stat-label">total value</div>
         </div>
         <div class="box-stat">
           <div class="box-stat-value">${totalCards}</div>
@@ -1208,6 +1341,22 @@ function getCurrentSetConfig() {
       // Show collection when there are cards
       dom.mtgCollection.style.display = 'block';
       dom.emptyCollection.style.display = 'none';
+
+      // Calculate total collection value
+      if (typeof getCardPrice === 'function' && dom.collectionValueAmount) {
+        let totalValue = 0;
+        entries.forEach(entry => {
+          const card = entry.card;
+          const setCode = entry.set || currentSetCode;
+          let cardPrice = getCardPrice(card.name, setCode);
+          if (cardPrice === null) {
+            const rarity = card.rarity || 'common';
+            cardPrice = getDefaultPrice(setCode, rarity);
+          }
+          totalValue += cardPrice * entry.count;
+        });
+        dom.collectionValueAmount.textContent = formatPriceFull(totalValue);
+      }
       
       // Categorize cards
       const power9Cards = [];
@@ -1243,7 +1392,7 @@ function getCurrentSetConfig() {
       function createCardWithCount(entry) {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-with-count';
-        wrapper.appendChild(createCardElement(entry.card, 'mini', 'none'));
+        wrapper.appendChild(createCardElement(entry.card, 'mini', 'none', entry.set));
         
         if (entry.count > 1) {
           const badge = document.createElement('span');
@@ -1276,4 +1425,10 @@ function getCurrentSetConfig() {
       populateSection(dom.redSection, dom.redArea, redCards);
       populateSection(dom.greenSection, dom.greenArea, greenCards);
       populateSection(dom.colorlessSection, dom.colorlessArea, colorlessCards);
+    }
+
+    // Initialize: preload prices for default set on page load
+    if (typeof preloadSetPrices === 'function') {
+      const cardPool = getCardPool();
+      preloadSetPrices(currentSetCode, cardPool);
     }

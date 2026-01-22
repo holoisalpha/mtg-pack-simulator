@@ -816,6 +816,82 @@ button:disabled {
   margin-top: var(--space-xs);
 }
 
+/* Card Value Display */
+.card-value {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+.card-value.value-low {
+  color: var(--text-secondary);
+}
+
+.card-value.value-medium {
+  color: #4ade80;
+}
+
+.card-value.value-high {
+  color: var(--color-gold);
+  text-shadow: 0 0 10px var(--color-gold-glow);
+}
+
+.card-value.value-epic {
+  color: #f472b6;
+  text-shadow: 0 0 15px rgba(244, 114, 182, 0.5);
+  animation: epicValue 1s ease-in-out infinite alternate;
+}
+
+.card-value.value-legendary {
+  background: linear-gradient(135deg, #ffd700, #ff6b6b, #a855f7, #3b82f6);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: legendaryValue 2s ease-in-out infinite;
+  font-size: 1.3rem;
+}
+
+@keyframes epicValue {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+@keyframes legendaryValue {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.pack-value {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: var(--space-xs);
+}
+
+.pack-value span {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+/* Collection Value */
+.collection-value {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: var(--space-lg);
+}
+
+.collection-value span {
+  color: #4ade80;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
 /* ============================================
    Rarity Labels
    ============================================ */
@@ -983,7 +1059,7 @@ button:disabled {
   width: 75px;
   height: 105px;
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  overflow: visible;
   background: var(--color-bg-elevated);
   cursor: pointer;
   transition: var(--transition-bounce);
@@ -993,8 +1069,8 @@ button:disabled {
 }
 
 .collection-area .mini-card img {
-  width: 100%;
-  height: 100%;
+  width: 75px;
+  height: 105px;
   object-fit: cover;
   border-radius: calc(var(--radius-sm) - 2px);
 }
@@ -1020,6 +1096,61 @@ button:disabled {
 
 .collection-area .mini-card.dual-land {
   animation: dualLandMiniGlow 1.5s ease-in-out infinite alternate;
+}
+
+/* Card Price Tooltip */
+.card-price-tooltip {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #4ade80;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mini-card {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Revealed row - show price on hover */
+.revealed-row .mini-card:hover .card-price-tooltip {
+  opacity: 1;
+}
+
+/* Card with count wrapper */
+.card-with-count {
+  position: relative;
+  display: inline-block;
+}
+
+/* Collection card price - always visible below card */
+.collection-area .card-with-count {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.collection-area .mini-card .card-price-tooltip {
+  bottom: -16px;
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.6 !important;
+  background: transparent;
+  color: var(--text-muted);
+  transition: opacity 0.2s ease;
+}
+
+.collection-area .mini-card:hover .card-price-tooltip {
+  opacity: 0 !important;
 }
 
 .empty {
@@ -1194,6 +1325,11 @@ button:disabled {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.box-stat-value-highlight .box-stat-value {
+  color: #4ade80;
+  text-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
 }
 
 .box-section {
