@@ -351,7 +351,7 @@ h1.subtitle {
 }
 
 .controls button {
-  min-width: 160px;
+  width: 160px;
 }
 
 button {
