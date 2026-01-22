@@ -34,7 +34,10 @@ function switchGameMode(mode) {
     if (pokemonFrame) pokemonFrame.style.display = 'block';
 
     if (mtgCollection) mtgCollection.style.display = 'none';
-    if (pokemonCollection) pokemonCollection.style.display = 'block';
+    // Only show Pokemon collection if it has cards
+    const pokemonCollCount = document.getElementById('pokemonCollCount');
+    const hasPokemonCards = pokemonCollCount && parseInt(pokemonCollCount.textContent) > 0;
+    if (pokemonCollection) pokemonCollection.style.display = hasPokemonCards ? 'block' : 'none';
 
     if (openBtn) {
       openBtn.textContent = 'Open Pack';
@@ -90,7 +93,10 @@ function switchGameMode(mode) {
     if (mtgFrame) mtgFrame.style.display = 'block';
     if (pokemonFrame) pokemonFrame.style.display = 'none';
 
-    if (mtgCollection) mtgCollection.style.display = 'block';
+    // Only show MTG collection if it has cards
+    const mtgCollCount = document.getElementById('collCount');
+    const hasMtgCards = mtgCollCount && parseInt(mtgCollCount.textContent) > 0;
+    if (mtgCollection) mtgCollection.style.display = hasMtgCards ? 'block' : 'none';
     if (pokemonCollection) pokemonCollection.style.display = 'none';
 
     if (openBtn) {
