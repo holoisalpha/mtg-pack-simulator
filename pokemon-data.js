@@ -200,8 +200,9 @@ function savePokemonCollection() {
   }
 }
 
-// Load collection on script init
-loadPokemonCollection();
+// Clear collection on page load (don't persist between sessions)
+localStorage.removeItem('pokemonCollection');
+pokemonCollection = {};
 
 // Current Pokemon pack state
 let pokemonCurrentPack = [];

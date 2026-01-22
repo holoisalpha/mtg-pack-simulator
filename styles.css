@@ -1148,11 +1148,7 @@ button:disabled {
   font-size: 8px;
   color: rgba(255,255,255,0.5);
   margin-top: 3px;
-  padding-left: 30px;
-}
-
-.collection-price-special {
-  padding-left: 27px;
+  text-align: center;
 }
 
 .empty {
@@ -1518,11 +1514,6 @@ button:disabled {
     height: 280px;
   }
 
-  .pokemon-card-full {
-    width: 200px;
-    height: 280px;
-  }
-
   .pokemon-card-mini {
     width: 60px;
     height: 84px;
@@ -1650,11 +1641,6 @@ button:disabled {
 
   /* Pokemon card sizing on smaller mobile - match MTG */
   .pokemon-card-area {
-    width: 170px;
-    height: 238px;
-  }
-
-  .pokemon-card-full {
     width: 170px;
     height: 238px;
   }
@@ -1799,10 +1785,7 @@ button:focus-visible,
   object-fit: contain;
 }
 
-.pokemon-card-full {
-  width: 250px;
-  height: 350px;
-}
+/* pokemon-card-full inherits size from parent container */
 
 /* Pokemon card reveal area spacing - inherits size from main-card-area */
 .pokemon-card-area {

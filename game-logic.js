@@ -1442,7 +1442,7 @@ function getCurrentSetConfig() {
             cardPrice = getDefaultPrice(setCode, rarity);
           }
           const price = document.createElement('div');
-          price.className = (entry.card.isPowerNine || entry.card.isDual) ? 'collection-price collection-price-special' : 'collection-price';
+          price.className = 'collection-price';
           price.textContent = formatPrice(cardPrice);
           outer.appendChild(price);
         }
@@ -1491,9 +1491,13 @@ function getCurrentSetConfig() {
       const extraOptions = document.querySelectorAll('#mtgFrame .extra-option');
       const setButtons = document.querySelector('#mtgFrame .set-buttons');
       const productButtons = document.querySelector('#mtgFrame .product-buttons');
+      const headers = document.querySelectorAll('#mtgFrame .frame-header');
       extraOptions.forEach(opt => opt.style.display = mtgOptionsExpanded ? '' : 'none');
       setButtons.classList.toggle('collapsed', !mtgOptionsExpanded);
       productButtons.classList.toggle('collapsed', !mtgOptionsExpanded);
+      // Update headings
+      if (headers[0]) headers[0].textContent = mtgOptionsExpanded ? 'Pick your Set' : 'Your Set';
+      if (headers[1]) headers[1].textContent = mtgOptionsExpanded ? 'Pick your Product' : 'Product';
     }
     window.toggleMtgOptions = toggleMtgOptions;
 
@@ -1503,8 +1507,11 @@ function getCurrentSetConfig() {
       pokemonOptionsExpanded = !pokemonOptionsExpanded;
       const extraOptions = document.querySelectorAll('#pokemonFrame .extra-option');
       const productButtons = document.querySelector('#pokemonFrame .product-buttons');
+      const headers = document.querySelectorAll('#pokemonFrame .frame-header');
       extraOptions.forEach(opt => opt.style.display = pokemonOptionsExpanded ? '' : 'none');
       productButtons.classList.toggle('collapsed', !pokemonOptionsExpanded);
+      // Update headings
+      if (headers[1]) headers[1].textContent = pokemonOptionsExpanded ? 'Pick your Product' : 'Product';
     }
     window.togglePokemonOptions = togglePokemonOptions;
 
@@ -1513,5 +1520,9 @@ function getCurrentSetConfig() {
     document.querySelector('#mtgFrame .product-buttons').classList.add('collapsed');
     document.querySelector('#pokemonFrame .product-buttons').classList.add('collapsed');
 
-    // Scroll to top on page load/refresh
+    // Scroll to top on page load/refresh (with delay to override browser restore)
     window.scrollTo(0, 0);
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    setTimeout(() => window.scrollTo(0, 0), 0);
