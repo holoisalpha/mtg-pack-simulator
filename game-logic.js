@@ -1390,6 +1390,10 @@ function getCurrentSetConfig() {
       
       // Helper to create card element with count badge
       function createCardWithCount(entry) {
+        // Outer container stacks card and price vertically
+        const outer = document.createElement('div');
+        outer.className = 'collection-card-outer';
+
         const wrapper = document.createElement('div');
         wrapper.className = 'card-with-count';
         const cardEl = createCardElement(entry.card, 'mini', 'none', entry.set);
@@ -1402,7 +1406,9 @@ function getCurrentSetConfig() {
           wrapper.appendChild(badge);
         }
 
-        // Add price label below card (separate from mini-card)
+        outer.appendChild(wrapper);
+
+        // Price below card
         if (typeof getCardPrice === 'function') {
           const setCode = entry.set || currentSetCode;
           let cardPrice = getCardPrice(entry.card.name, setCode);
@@ -1410,13 +1416,16 @@ function getCurrentSetConfig() {
             const rarity = entry.card.rarity || 'common';
             cardPrice = getDefaultPrice(setCode, rarity);
           }
-          const priceLabel = document.createElement('div');
-          priceLabel.className = 'collection-price-label';
-          priceLabel.textContent = formatPrice(cardPrice);
-          wrapper.appendChild(priceLabel);
+          const price = document.createElement('div');
+          price.style.fontSize = '8px';
+          price.style.color = 'rgba(255,255,255,0.5)';
+          price.style.marginTop = '3px';
+          price.style.paddingLeft = (entry.card.isPowerNine || entry.card.isDual) ? '26px' : '28px';
+          price.textContent = formatPrice(cardPrice);
+          outer.appendChild(price);
         }
 
-        return wrapper;
+        return outer;
       }
       
       // Helper to populate a section

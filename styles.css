@@ -1047,7 +1047,7 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--space-md);
+  gap: 12px;
   padding: var(--space-lg);
   background: rgba(255, 255, 255, 0.015);
   backdrop-filter: blur(20px);
@@ -1059,13 +1059,13 @@ button:disabled {
   width: 75px;
   height: 105px;
   border-radius: var(--radius-sm);
-  overflow: visible;
-  background: var(--color-bg-elevated);
+  overflow: hidden;
+  background: transparent;
   cursor: pointer;
   transition: var(--transition-bounce);
   transition-property: transform, box-shadow;
   transform-origin: center center;
-  border: 1px solid var(--border-subtle);
+  border: none;
 }
 
 .collection-area .mini-card img {
@@ -1127,51 +1127,16 @@ button:disabled {
   opacity: 1;
 }
 
-/* Card with count wrapper */
-.card-with-count {
-  position: relative;
-  display: inline-block;
-}
-
-/* Collection card price - always visible below card */
-.collection-area .card-with-count {
-  margin-bottom: 8px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Price label below collection cards */
-.collection-price-label {
-  font-size: 9px;
-  color: var(--text-muted);
-  text-align: center;
-  margin-top: 2px;
-  opacity: 0.7;
-}
-
-/* Hide the old tooltip inside collection cards - we use the new price label instead */
+/* Collection cards - hide price tooltip */
 .collection-area .mini-card .card-price-tooltip {
   display: none !important;
 }
 
-.collection-area .card-with-count .mini-card .card-price-tooltip {
-  position: absolute !important;
-  bottom: auto !important;
-  top: 105% !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  margin-top: 0;
-  font-size: 9px;
-  font-weight: 500;
-  opacity: 0.7 !important;
-  background: transparent;
-  color: var(--text-muted);
-}
-
-.collection-area .mini-card:hover .card-price-tooltip {
-  opacity: 0 !important;
+/* Collection card outer wrapper with price */
+.collection-card-outer {
+  display: inline-block;
+  vertical-align: top;
+  margin: 8px 10px;
 }
 
 .empty {
@@ -1608,13 +1573,8 @@ button:disabled {
     height: 84px;
   }
 
-  /* Collection price tooltip on tablet/mobile */
   .collection-area .card-with-count {
     margin-bottom: 6px;
-  }
-
-  .collection-price-label {
-    font-size: 8px;
   }
 
   .box-stats {
@@ -1668,13 +1628,8 @@ button:disabled {
     transform: scale(2.2);
   }
 
-  /* Collection price tooltip on mobile */
   .collection-area .card-with-count {
     margin-bottom: 4px;
-  }
-
-  .collection-price-label {
-    font-size: 7px;
   }
 
   /* Pokemon card sizing on smaller mobile - match MTG */
