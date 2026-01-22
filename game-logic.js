@@ -272,6 +272,9 @@ function getCurrentSetConfig() {
     }
 
     function selectSet(setCode) {
+      // Hide box results if showing
+      dom.boxResultsContainer.style.display = 'none';
+
       currentSetCode = setCode;
       const setConfig = getCurrentSetConfig();
 
@@ -401,6 +404,9 @@ function getCurrentSetConfig() {
     }
 
     function openPack() {
+      // Hide box results if showing
+      dom.boxResultsContainer.style.display = 'none';
+
       currentIndex = 0;
       const cardPool = getCardPool();
       const setConfig = getCurrentSetConfig();
@@ -450,6 +456,9 @@ function getCurrentSetConfig() {
     }
 
     function openStarterDeckPrepare() {
+      // Hide box results if showing
+      dom.boxResultsContainer.style.display = 'none';
+
       currentIndex = 0;
       const cardPool = getCardPool();
 
@@ -1333,8 +1342,24 @@ function getCurrentSetConfig() {
       dom.collCount.textContent = entries.length;
       
       if (entries.length === 0) {
-        // Hide entire collection when empty
+        // Hide entire collection when empty and clear all section areas
         dom.mtgCollection.style.display = 'none';
+        dom.power9Area.innerHTML = '';
+        dom.dualArea.innerHTML = '';
+        dom.whiteArea.innerHTML = '';
+        dom.blueArea.innerHTML = '';
+        dom.blackArea.innerHTML = '';
+        dom.redArea.innerHTML = '';
+        dom.greenArea.innerHTML = '';
+        dom.colorlessArea.innerHTML = '';
+        dom.power9Section.style.display = 'none';
+        dom.dualSection.style.display = 'none';
+        dom.whiteSection.style.display = 'none';
+        dom.blueSection.style.display = 'none';
+        dom.blackSection.style.display = 'none';
+        dom.redSection.style.display = 'none';
+        dom.greenSection.style.display = 'none';
+        dom.colorlessSection.style.display = 'none';
         return;
       }
 
