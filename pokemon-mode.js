@@ -150,7 +150,7 @@ function selectPokemonProduct(product) {
   if (product === 'booster') {
     boosterBtn.classList.add('active');
     boxBtn.classList.remove('active');
-    productInfo.textContent = '11 cards • 5 commons, 3 uncommons, 1 energy, 1 trainer, 1 rare';
+    productInfo.textContent = '11 cards • 7 commons, 3 uncommons, 1 rare';
     openBtn.textContent = 'Open Booster Pack';
   } else if (product === 'booster-box') {
     boosterBtn.classList.remove('active');

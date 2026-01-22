@@ -1387,6 +1387,13 @@ button:disabled {
 
   .controls {
     gap: var(--space-sm);
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .controls button:not(.secondary) {
+    flex: 1;
+    max-width: 100%;
   }
 
   button {

@@ -198,63 +198,55 @@ function pickUniqueCards(pool, count, usedNames = new Set()) {
 }
 
 // Generate a Pokemon booster pack (11 cards)
-// Structure: 5 commons, 3 uncommons, 1 trainer, 1 energy, 1 rare/holo
+// Accurate to real Base Set: 7 commons, 3 uncommons, 1 rare
+// Card order matches real packs: Energy first, then commons, uncommons, rare at back
 // usedRares is optional - pass a Set to track rares across a box
 function generatePokemonPack(usedRares = null) {
-  const pack = [];
   const usedInPack = new Set(); // Track all card names used in this pack
+  const energyCards = [];
+  const commonCards = [];
+  const uncommonCards = [];
 
-  // 5 commons (mix of Pokemon and trainer commons) - no repeats in pack
-  const commonPool = [...POKEMON_BASE_SET.commons, ...POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'common')];
-  const pickedCommons = pickUniqueCards(commonPool, 5, usedInPack);
+  // 7 commons (mix of Pokemon, common trainers, and basic energies) - no repeats in pack
+  const basicEnergies = POKEMON_BASE_SET.energies.filter(e => e.name !== 'Double Colorless Energy');
+  const commonPool = [...POKEMON_BASE_SET.commons, ...POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'common'), ...basicEnergies];
+  const pickedCommons = pickUniqueCards(commonPool, 7, usedInPack);
   pickedCommons.forEach(card => {
     usedInPack.add(card.name);
-    pack.push({
+    const cardObj = {
       ...card,
       rarity: 'common',
       imageUrl: card.number ? getPokemonCardImage(card.number) : null
-    });
+    };
+    // Separate energy cards to put them first
+    if (card.name && card.name.includes('Energy')) {
+      energyCards.push(cardObj);
+    } else {
+      commonCards.push(cardObj);
+    }
   });
 
-  // 3 uncommons - no repeats in pack (also avoiding commons already picked)
+  // 3 uncommons (mix of Pokemon and uncommon trainers) - no repeats in pack
   const uncommonPool = [...POKEMON_BASE_SET.uncommons, ...POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'uncommon')];
   const pickedUncommons = pickUniqueCards(uncommonPool, 3, usedInPack);
   pickedUncommons.forEach(card => {
     usedInPack.add(card.name);
-    pack.push({
+    uncommonCards.push({
       ...card,
       rarity: 'uncommon',
       imageUrl: card.number ? getPokemonCardImage(card.number) : null
     });
   });
 
-  // 1 energy
-  const energy = POKEMON_BASE_SET.energies[Math.floor(Math.random() * (POKEMON_BASE_SET.energies.length - 1))]; // Exclude DCE
-  pack.push({
-    ...energy,
-    rarity: 'common',
-    imageUrl: getPokemonCardImage(energy.number)
-  });
-
-  // 1 rare trainer - check usedRares if provided
-  const rareTrainers = POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'rare');
-  let availableTrainers = usedRares ? rareTrainers.filter(t => !usedRares.has(t.name)) : rareTrainers;
-  if (availableTrainers.length === 0) availableTrainers = rareTrainers; // fallback if all used
-  const rareTrainer = availableTrainers[Math.floor(Math.random() * availableTrainers.length)];
-  pack.push({
-    ...rareTrainer,
-    rarity: 'rare',
-    imageUrl: getPokemonCardImage(rareTrainer.number)
-  });
-  if (usedRares) usedRares.add(rareTrainer.name);
-
-  // 1 rare/holo (1 in 3 chance of holo) - check usedRares if provided
+  // 1 rare (Pokemon, holo Pokemon, or rare trainer) - ~1/3 chance of holo
   const isHolo = Math.random() < 0.33;
   let rareCard;
+  const rareTrainers = POKEMON_BASE_SET.trainers.filter(t => t.rarity === 'rare');
 
   if (isHolo) {
+    // Holo rare Pokemon
     let availableHolos = usedRares ? POKEMON_BASE_SET.holoRares.filter(c => !usedRares.has(c.name)) : POKEMON_BASE_SET.holoRares;
-    if (availableHolos.length === 0) availableHolos = POKEMON_BASE_SET.holoRares; // fallback
+    if (availableHolos.length === 0) availableHolos = POKEMON_BASE_SET.holoRares;
     rareCard = availableHolos[Math.floor(Math.random() * availableHolos.length)];
     rareCard = {
       ...rareCard,
@@ -265,8 +257,10 @@ function generatePokemonPack(usedRares = null) {
     };
     if (usedRares) usedRares.add(rareCard.name);
   } else {
-    let availableRares = usedRares ? POKEMON_BASE_SET.rares.filter(c => !usedRares.has(c.name)) : POKEMON_BASE_SET.rares;
-    if (availableRares.length === 0) availableRares = POKEMON_BASE_SET.rares; // fallback
+    // Non-holo rare (Pokemon or trainer)
+    const nonHoloRarePool = [...POKEMON_BASE_SET.rares, ...rareTrainers];
+    let availableRares = usedRares ? nonHoloRarePool.filter(c => !usedRares.has(c.name)) : nonHoloRarePool;
+    if (availableRares.length === 0) availableRares = nonHoloRarePool;
     rareCard = availableRares[Math.floor(Math.random() * availableRares.length)];
     rareCard = {
       ...rareCard,
@@ -275,9 +269,9 @@ function generatePokemonPack(usedRares = null) {
     };
     if (usedRares) usedRares.add(rareCard.name);
   }
-  pack.push(rareCard);
 
-  return pack;
+  // Build pack in real order: Energy first, then commons, uncommons, rare at back
+  return [...energyCards, ...commonCards, ...uncommonCards, rareCard];
 }
 
 // Create a Pokemon card element for display
