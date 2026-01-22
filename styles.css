@@ -350,6 +350,10 @@ h1.subtitle {
   flex-wrap: wrap;
 }
 
+.controls button {
+  min-width: 140px;
+}
+
 button {
   font-family: inherit;
   font-size: 0.9rem;
