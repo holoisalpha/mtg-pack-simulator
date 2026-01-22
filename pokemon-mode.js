@@ -145,7 +145,10 @@ function switchGameMode(mode) {
     if (skipBtn) skipBtn.disabled = true;
   }
 
-  updatePokemonCollection();
+  // Only update Pokemon collection display when in Pokemon mode
+  if (currentGameMode === 'pokemon') {
+    updatePokemonCollection();
+  }
 }
 
 // Pokemon product selection
