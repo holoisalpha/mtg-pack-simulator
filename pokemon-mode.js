@@ -33,7 +33,9 @@ function switchGameMode(mode) {
     if (mtgFrame) mtgFrame.style.display = 'none';
     if (pokemonFrame) pokemonFrame.style.display = 'block';
 
-    if (mtgCollection) mtgCollection.style.display = 'none';
+    // Always hide MTG collection when in Pokemon mode
+    const mtgCollEl = document.getElementById('mtgCollection');
+    if (mtgCollEl) mtgCollEl.style.display = 'none';
     // Only show Pokemon collection if it has cards
     const pokemonCollCount = document.getElementById('pokemonCollCount');
     const hasPokemonCards = pokemonCollCount && pokemonCollCount.textContent !== '0';
@@ -97,7 +99,9 @@ function switchGameMode(mode) {
     const mtgCollCount = document.getElementById('collCount');
     const hasMtgCards = mtgCollCount && mtgCollCount.textContent !== '0';
     if (mtgCollection) mtgCollection.style.display = hasMtgCards ? 'block' : 'none';
-    if (pokemonCollection) pokemonCollection.style.display = 'none';
+    // Always hide Pokemon collection when in MTG mode
+    const pokemonCollEl = document.getElementById('pokemonCollectionSection');
+    if (pokemonCollEl) pokemonCollEl.style.display = 'none';
 
     if (openBtn) {
       openBtn.onclick = openProduct;
