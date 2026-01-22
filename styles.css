@@ -1339,19 +1339,10 @@ button:disabled {
   }
 
   .set-buttons, .product-buttons {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.5rem;
     padding-bottom: 0.25rem;
-  }
-
-  .set-buttons::-webkit-scrollbar,
-  .product-buttons::-webkit-scrollbar {
-    display: none;
   }
 
   .mtg-frame {
