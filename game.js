@@ -1190,7 +1190,7 @@ function getCurrentSetConfig() {
       const setConfig = getCurrentSetConfig();
 
       // Update set selector buttons
-      document.querySelectorAll('.set-btn').forEach(btn => {
+      document.querySelectorAll('.set-buttons .mtg-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.set === setCode);
       });
 
@@ -1483,8 +1483,9 @@ function getCurrentSetConfig() {
       
       const completeMsg = productType === 'starter' ? 'Starter deck complete!' : 'Pack complete!';
       const addedMsg = cardsAdded > 0 ? ` ${cardsAdded} cards added to collection.` : '';
-      dom.mainCardArea.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:16px;text-align:center;padding:20px;background:rgba(0,0,0,0.2);border-radius:14px;">
-        ✓ ${completeMsg}${addedMsg}
+      dom.mainCardArea.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;">
+        <img src="card-back.webp" alt="MTG Card Back" style="width:100%;height:auto;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+        <div style="color:#a89878;font-size:13px;text-align:center;font-family:'Times New Roman',serif;font-style:italic;">✓ ${completeMsg}${addedMsg}</div>
       </div>`;
 
       currentPack = [];

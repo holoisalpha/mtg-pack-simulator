@@ -14,23 +14,27 @@
   </div>
 
 
-  <!-- Set Selector -->
-  <div class="set-selector">
-    <span class="set-label">Set:</span>
-    <button class="set-btn" data-set="lea" onclick="selectSet('lea')">Alpha</button>
-    <button class="set-btn active" data-set="leb" onclick="selectSet('leb')">Beta</button>
-    <button class="set-btn" data-set="2ed" onclick="selectSet('2ed')">Unlimited</button>
-    <button class="set-btn" data-set="arn" onclick="selectSet('arn')">Arabian Nights</button>
-    <button class="set-btn" data-set="leg" onclick="selectSet('leg')">Legends</button>
-    <button class="set-btn" data-set="4ed" onclick="selectSet('4ed')">4th Edition</button>
-  </div>
+  <!-- MTG Frame Selector -->
+  <div class="mtg-frame">
+    <div class="frame-header">Select Your Set</div>
+    <div class="set-buttons">
+      <button class="mtg-btn" data-set="lea" onclick="selectSet('lea')">Alpha</button>
+      <button class="mtg-btn active" data-set="leb" onclick="selectSet('leb')">Beta</button>
+      <button class="mtg-btn" data-set="2ed" onclick="selectSet('2ed')">Unlimited</button>
+      <button class="mtg-btn" data-set="arn" onclick="selectSet('arn')">Arabian Nights</button>
+      <button class="mtg-btn" data-set="leg" onclick="selectSet('leg')">Legends</button>
+      <button class="mtg-btn" data-set="4ed" onclick="selectSet('4ed')">4th Edition</button>
+    </div>
 
-  <!-- Product Type Selector -->
-  <div class="product-selector">
-    <button class="product-btn active" id="boosterBtn" onclick="selectProduct('booster')">Booster Pack</button>
-    <button class="product-btn" id="boosterBoxBtn" onclick="selectProduct('booster-box')">Booster Box</button>
-    <button class="product-btn" id="starterBtn" onclick="selectProduct('starter')">Starter Deck</button>
-    <button class="product-btn" id="starterBoxBtn" onclick="selectProduct('starter-box')">Starter Box</button>
+    <div class="frame-divider"></div>
+
+    <div class="frame-header">Select Product</div>
+    <div class="product-buttons">
+      <button class="mtg-btn active" id="boosterBtn" onclick="selectProduct('booster')">Booster Pack</button>
+      <button class="mtg-btn" id="boosterBoxBtn" onclick="selectProduct('booster-box')">Booster Box</button>
+      <button class="mtg-btn" id="starterBtn" onclick="selectProduct('starter')">Starter Deck</button>
+      <button class="mtg-btn" id="starterBoxBtn" onclick="selectProduct('starter-box')">Starter Box</button>
+    </div>
   </div>
 
   <div class="controls">
