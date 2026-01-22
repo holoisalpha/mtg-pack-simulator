@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MTG Pack Rip Simulator</title>
+  <title>Box Break Simulator</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
 </head>
 <body>
-  <div class="header">
-    <img src="mtg-logo.png" alt="Magic: The Gathering" class="header-logo">
-    <h1 class="subtitle">PACK RIP SIMULATOR</h1>
+  <div class="header" id="gameHeader">
+    <img src="mtg-logo.png" alt="Magic: The Gathering" class="header-logo" id="gameLogo">
+    <h1 class="subtitle">BOX BREAK SIMULATOR</h1>
   </div>
 
 
   <!-- MTG Frame Selector -->
-  <div class="mtg-frame">
+  <div class="mtg-frame" id="mtgFrame">
     <div class="frame-header">Select Your Set</div>
     <div class="set-buttons">
       <button class="mtg-btn" data-set="lea" onclick="selectSet('lea')">Alpha</button>
@@ -39,16 +39,36 @@
     <p class="product-info" id="productInfo">15 cards • 11 commons, 3 uncommons, 1 rare</p>
   </div>
 
+  <!-- Pokemon Frame Selector (hidden by default) -->
+  <div class="mtg-frame pokemon-frame" id="pokemonFrame" style="display:none;">
+    <div class="frame-header">Select Your Set</div>
+    <div class="set-buttons">
+      <button class="mtg-btn active" data-set="base1">1st Edition Base Set</button>
+    </div>
+    <p class="set-info" id="pokemonSetInfo">1st Edition Base Set • January 1999 • 102 Cards</p>
+
+    <div class="frame-divider"></div>
+
+    <div class="frame-header">Select Product</div>
+    <div class="product-buttons">
+      <button class="mtg-btn active" id="pokemonBoosterBtn" onclick="selectPokemonProduct('booster')">Booster Pack</button>
+      <button class="mtg-btn" id="pokemonBoxBtn" onclick="selectPokemonProduct('booster-box')">Booster Box</button>
+    </div>
+    <p class="product-info" id="pokemonProductInfo">11 cards • 5 commons, 3 uncommons, 1 energy, 1 trainer, 1 rare</p>
+  </div>
+
   <div class="controls">
     <button onclick="openProduct()" id="openBtn">Open Booster Pack</button>
     <button onclick="skipAll()" id="skipBtn" class="secondary" disabled>Skip to End</button>
-    
   </div>
   
   <div id="alert" class="alert"></div>
   
   <!-- Screen flash for Power 9 -->
   <div class="power9-flash" id="power9Flash"></div>
+
+  <!-- Screen flash for Pokemon chase cards -->
+  <div class="chase-flash" id="chaseFlash"></div>
   
   <!-- Booster Pack (shown initially after clicking Open Pack) -->
   <!-- Booster Pack Container -->
@@ -81,6 +101,37 @@
     </div>
     <div class="revealed-row" id="revealedRow"></div>
   </div>
+
+  <!-- Pokemon Pack Container -->
+  <div class="reveal-container" id="pokemonPackContainer" style="display:none;">
+    <div class="booster-pack pokemon-pack" id="pokemonBoosterPack" onclick="openPokemonBoosterPack()">
+      <div class="pack-glow pokemon-glow"></div>
+      <img src="pokemon-pack.png" alt="Pokemon Booster Pack" onerror="this.src='booster-pack-art.png'">
+    </div>
+    <div class="card-hint" style="margin-top:15px;">Tap to open!</div>
+  </div>
+
+  <!-- Pokemon Booster Box Container -->
+  <div class="reveal-container" id="pokemonBoxContainer" style="display:none;">
+    <div class="booster-box pokemon-box" id="pokemonBoosterBox" onclick="openPokemonBoosterBox()">
+      <div class="pack-glow pokemon-glow"></div>
+      <img src="pokemon-booster-box.png" alt="Pokemon Booster Box">
+    </div>
+    <div class="card-hint" style="margin-top:15px;">Tap to open all 36 packs!</div>
+  </div>
+
+  <!-- Pokemon Card reveal area -->
+  <div class="reveal-container" id="pokemonRevealContainer" style="display:none;">
+    <div class="rarity-label" id="pokemonRarityLabel" style="display:none;"></div>
+    <div class="main-card-area pokemon-card-area" id="pokemonMainCardArea" onclick="handlePokemonCardClick()">
+      <!-- Current Pokemon card shown here -->
+    </div>
+    <div class="card-info">
+      <div class="card-counter">Card <span id="pokemonCurrentCard">0</span> of <span id="pokemonTotalCards">11</span></div>
+      <div class="card-hint" id="pokemonCardHint">Tap for next card</div>
+    </div>
+    <div class="revealed-row" id="pokemonRevealedRow"></div>
+  </div>
   
   <!-- Box Opening Results -->
   <div id="boxResultsContainer" class="box-results-container" style="display:none;">
@@ -103,21 +154,22 @@
     <button onclick="closeBoxResults()" class="box-close-btn">Continue</button>
   </div>
   
-  <div class="collection">
+  <!-- MTG Collection -->
+  <div class="collection" id="mtgCollection">
     <h2>Collection (<span id="collCount">0</span> unique cards)</h2>
-    
+
     <!-- Power Nine Section -->
     <div id="power9Section" class="collection-section power9-section" style="display:none;">
       <h3 class="section-title power9-title">Power Nine</h3>
       <div id="power9Area" class="collection-area power9-area"></div>
     </div>
-    
+
     <!-- Dual Lands Section -->
     <div id="dualSection" class="collection-section dual-section" style="display:none;">
       <h3 class="section-title dual-title">Dual Lands</h3>
       <div id="dualArea" class="collection-area dual-area"></div>
     </div>
-    
+
     <!-- Cards by Color -->
     <div id="colorSections" class="color-sections">
       <div id="whiteSection" class="collection-section color-section" style="display:none;">
@@ -145,9 +197,69 @@
         <div id="colorlessArea" class="collection-area"></div>
       </div>
     </div>
-    
+
     <div id="emptyCollection" class="empty">Open packs to start your collection! (Lands are not collected)</div>
   </div>
+
+  <!-- Pokemon Collection (hidden by default) -->
+  <div class="collection pokemon-collection" id="pokemonCollectionSection" style="display:none;">
+    <h2>Collection (<span id="pokemonCollCount">0</span> unique cards)</h2>
+
+    <!-- Chase Cards Section -->
+    <div id="chaseSection" class="collection-section chase-section" style="display:none;">
+      <h3 class="section-title chase-title">Chase Cards</h3>
+      <div id="chaseArea" class="collection-area chase-area"></div>
+    </div>
+
+    <!-- Holo Rares Section -->
+    <div id="holoSection" class="collection-section holo-section" style="display:none;">
+      <h3 class="section-title holo-title">Holo Rares</h3>
+      <div id="holoArea" class="collection-area holo-area"></div>
+    </div>
+
+    <!-- Pokemon by Type -->
+    <div id="pokemonTypeSections" class="pokemon-type-sections">
+      <div id="fireSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title fire-title">Fire</h3>
+        <div id="fireArea" class="collection-area"></div>
+      </div>
+      <div id="waterSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title water-title">Water</h3>
+        <div id="waterArea" class="collection-area"></div>
+      </div>
+      <div id="grassSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title grass-title">Grass</h3>
+        <div id="grassArea" class="collection-area"></div>
+      </div>
+      <div id="lightningSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title lightning-title">Lightning</h3>
+        <div id="lightningArea" class="collection-area"></div>
+      </div>
+      <div id="psychicSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title psychic-title">Psychic</h3>
+        <div id="psychicArea" class="collection-area"></div>
+      </div>
+      <div id="fightingSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title fighting-title">Fighting</h3>
+        <div id="fightingArea" class="collection-area"></div>
+      </div>
+      <div id="colorlessPokeSection" class="collection-section pokemon-type-section" style="display:none;">
+        <h3 class="section-title colorless-poke-title">Colorless</h3>
+        <div id="colorlessPokeArea" class="collection-area"></div>
+      </div>
+    </div>
+
+    <div id="pokemonEmptyCollection" class="empty">Open packs to start your collection! (Energy cards are not collected)</div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <img src="pokeball-icon.png" alt="Switch to Pokemon" class="mode-switch-icon" id="modeSwitchIcon" onclick="toggleGameMode()" title="Switch to Pokemon">
+    <p class="copyright">Copyright 2025. All Rights Reserved.</p>
+  </footer>
+
     <script src="game.js"></script>
+    <script src="pokemon-data.js"></script>
+    <script src="pokemon-mode.js"></script>
 </body>
 </html>
