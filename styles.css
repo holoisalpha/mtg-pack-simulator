@@ -1339,10 +1339,27 @@ button:disabled {
   }
 
   .set-buttons, .product-buttons {
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     gap: 0.5rem;
     padding-bottom: 0.25rem;
+  }
+
+  .set-buttons::-webkit-scrollbar,
+  .product-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Pokemon mode - center buttons on mobile */
+  .pokemon-frame .set-buttons,
+  .pokemon-frame .product-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
   }
 
   .mtg-frame {
