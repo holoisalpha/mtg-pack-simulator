@@ -38,6 +38,18 @@ function getCurrentSetConfig() {
     
     // Basic lands to exclude from collection
     const BASIC_LANDS = ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'];
+
+    // Helper to calculate card price with fallback to default
+    function calculateCardPrice(card, setCode) {
+      if (typeof getCardPrice !== 'function') return 0;
+      let price = getCardPrice(card.name, setCode);
+      if (price === null) {
+        const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
+        price = getDefaultPrice(setCode, rarity);
+      }
+      return price || 0;
+    }
+
     let packCount = 0;
     let starterCount = 0;
     let currentIndex = 0;
@@ -169,15 +181,9 @@ function getCurrentSetConfig() {
       }
 
       // Calculate card price for tooltip/display
-      if (typeof getCardPrice === 'function') {
-        let cardPrice = getCardPrice(card.name, priceSetCode);
-        if (cardPrice === null) {
-          const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
-          cardPrice = getDefaultPrice(priceSetCode, rarity);
-        }
-        div.dataset.price = cardPrice;
-        div.dataset.priceFormatted = formatPrice(cardPrice);
-      }
+      const cardPrice = calculateCardPrice(card, priceSetCode);
+      div.dataset.price = cardPrice;
+      div.dataset.priceFormatted = formatPrice(cardPrice);
 
       // Add click handler for mini cards to show enlarged view
       if (size === 'mini') {
@@ -592,15 +598,8 @@ function getCurrentSetConfig() {
         : card.rarity;
 
       // Calculate and display card value
-      if (dom.cardValue && typeof getCardPrice === 'function') {
-        let cardPrice = getCardPrice(card.name, currentSetCode);
-        if (cardPrice === null) {
-          // Use default price based on rarity
-          const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
-          cardPrice = getDefaultPrice(currentSetCode, rarity);
-        }
-
-        // Update running total
+      if (dom.cardValue) {
+        const cardPrice = calculateCardPrice(card, currentSetCode);
         currentPackValue += cardPrice;
 
         // Display card value with appropriate styling
@@ -646,14 +645,7 @@ function getCurrentSetConfig() {
         checkSpecial(card);
 
         // Add to pack value
-        if (typeof getCardPrice === 'function') {
-          let cardPrice = getCardPrice(card.name, currentSetCode);
-          if (cardPrice === null) {
-            const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
-            cardPrice = getDefaultPrice(currentSetCode, rarity);
-          }
-          currentPackValue += cardPrice;
-        }
+        currentPackValue += calculateCardPrice(card, currentSetCode);
 
         currentIndex++;
       }
@@ -767,14 +759,7 @@ function getCurrentSetConfig() {
           else if (card.rarity === 'rare') raresPulled.push(card);
 
           // Calculate card value
-          if (typeof getCardPrice === 'function') {
-            let cardPrice = getCardPrice(card.name, currentSetCode);
-            if (cardPrice === null) {
-              const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
-              cardPrice = getDefaultPrice(currentSetCode, rarity);
-            }
-            boxTotalValue += cardPrice;
-          }
+          boxTotalValue += calculateCardPrice(card, currentSetCode);
         });
       }
       
@@ -853,14 +838,7 @@ function getCurrentSetConfig() {
           else if (card.rarity === 'rare') raresPulled.push(card);
 
           // Calculate card value
-          if (typeof getCardPrice === 'function') {
-            let cardPrice = getCardPrice(card.name, currentSetCode);
-            if (cardPrice === null) {
-              const rarity = BASIC_LANDS.includes(card.name) ? 'land' : (card.rarity || 'common');
-              cardPrice = getDefaultPrice(currentSetCode, rarity);
-            }
-            boxTotalValue += cardPrice;
-          }
+          boxTotalValue += calculateCardPrice(card, currentSetCode);
         });
       }
       
@@ -1375,17 +1353,11 @@ function getCurrentSetConfig() {
       dom.emptyCollection.style.display = 'none';
 
       // Calculate total collection value
-      if (typeof getCardPrice === 'function' && dom.collectionValueAmount) {
+      if (dom.collectionValueAmount) {
         let totalValue = 0;
         entries.forEach(entry => {
-          const card = entry.card;
           const setCode = entry.set || currentSetCode;
-          let cardPrice = getCardPrice(card.name, setCode);
-          if (cardPrice === null) {
-            const rarity = card.rarity || 'common';
-            cardPrice = getDefaultPrice(setCode, rarity);
-          }
-          totalValue += cardPrice * entry.count;
+          totalValue += calculateCardPrice(entry.card, setCode) * entry.count;
         });
         dom.collectionValueAmount.textContent = formatPriceFull(totalValue);
       }
@@ -1441,18 +1413,11 @@ function getCurrentSetConfig() {
         outer.appendChild(wrapper);
 
         // Price below card
-        if (typeof getCardPrice === 'function') {
-          const setCode = entry.set || currentSetCode;
-          let cardPrice = getCardPrice(entry.card.name, setCode);
-          if (cardPrice === null) {
-            const rarity = entry.card.rarity || 'common';
-            cardPrice = getDefaultPrice(setCode, rarity);
-          }
-          const price = document.createElement('div');
-          price.className = 'collection-price';
-          price.textContent = formatPrice(cardPrice);
-          outer.appendChild(price);
-        }
+        const setCode = entry.set || currentSetCode;
+        const price = document.createElement('div');
+        price.className = 'collection-price';
+        price.textContent = formatPrice(calculateCardPrice(entry.card, setCode));
+        outer.appendChild(price);
 
         return outer;
       }

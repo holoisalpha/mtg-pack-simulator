@@ -91,16 +91,6 @@ body {
   line-height: 1.5;
 }
 
-/* Ambient Background - disabled for pure black */
-body::before {
-  display: none;
-}
-
-/* Noise Texture Overlay - disabled for pure black */
-body::after {
-  display: none;
-}
-
 /* ============================================
    Header
    ============================================ */
@@ -1443,16 +1433,6 @@ button:disabled {
    ============================================ */
 .power-nine { animation: powerNineGlow 1.2s ease-in-out infinite alternate; }
 .dual-land { animation: dualLandGlow 1.5s ease-in-out infinite alternate; }
-
-@keyframes glow {
-  from { box-shadow: 0 0 20px var(--color-gold); }
-  to { box-shadow: 0 0 40px var(--color-power9), 0 0 60px rgba(255, 215, 0, 0.5); }
-}
-
-@keyframes dualglow {
-  from { box-shadow: 0 0 15px var(--color-dual); }
-  to { box-shadow: 0 0 35px var(--color-dual), 0 0 50px rgba(147, 51, 234, 0.4); }
-}
 
 /* ============================================
    Responsive Design
