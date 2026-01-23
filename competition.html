@@ -581,6 +581,7 @@
 
       // Disable zoom until pack complete
       document.getElementById('mainCardArea').classList.remove('can-zoom');
+      hasSelectedMiniCard = false;
 
       // Trigger original pack opening (generates the pack)
       document.getElementById('openBtn').click();
@@ -624,6 +625,7 @@
     // Track if pack is complete to prevent main card from changing
     let packComplete = false;
     let lastCardHtml = '';
+    let hasSelectedMiniCard = false;
 
     // Add click listener to mainCardArea for our extra functionality
     document.getElementById('mainCardArea').addEventListener('click', function() {
@@ -685,8 +687,7 @@
         actionText = ' Hover to view cards';
         packComplete = true;
         packRevealing = false;
-        // Enable zoom on main card
-        document.getElementById('mainCardArea').classList.add('can-zoom');
+        // Don't enable zoom yet - wait for mini card selection
         // Reset button on mobile
         if (isMobile() && btn) {
           btn.textContent = 'Open Pack';
@@ -720,9 +721,49 @@
         if (!mini.dataset.hoverAdded) {
           mini.dataset.hoverAdded = 'true';
           mini.addEventListener('mouseenter', function() {
+            hasSelectedMiniCard = true;
+            document.getElementById('mainCardArea').classList.add('can-zoom');
             showHoveredCard(mini, index);
           });
+          // Mobile tap to show in main area
+          mini.addEventListener('click', function() {
+            if (isMobile() && packComplete) {
+              hasSelectedMiniCard = true;
+              showHoveredCard(mini, index);
+            }
+          });
         }
+      });
+    }
+
+    // Mobile: tap main card to enlarge after pack complete (only if a mini card was selected first)
+    document.getElementById('mainCardArea').addEventListener('click', function(e) {
+      if (isMobile() && packComplete && hasSelectedMiniCard) {
+        const img = this.querySelector('img');
+        if (img) {
+          showEnlargedCard(img.src);
+        }
+      }
+    });
+
+    // Mobile enlarged card overlay
+    function showEnlargedCard(imgSrc) {
+      // Create overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'mobileCardOverlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:2000;display:flex;align-items:center;justify-content:center;';
+
+      // Create enlarged image
+      const enlargedImg = document.createElement('img');
+      enlargedImg.src = imgSrc;
+      enlargedImg.style.cssText = 'height:85vh;width:auto;max-width:90vw;object-fit:contain;clip-path:inset(2% round 3%);background-color:#000;border:none;box-shadow:none;outline:none;padding:0;margin:0;';
+
+      overlay.appendChild(enlargedImg);
+      document.body.appendChild(overlay);
+
+      // Tap anywhere to close
+      overlay.addEventListener('click', function() {
+        overlay.remove();
       });
     }
 
