@@ -30,6 +30,50 @@
       touch-action: none;
     }
 
+    /* Fleer mode - matches standalone fleer-1986.html */
+    body.fleer-mode .splash-screen {
+      background: linear-gradient(180deg, #f5f5f0 0%, #e8e4dc 100%);
+      padding: 40px 30px 180px 30px;
+    }
+
+    body.fleer-mode .splash-logo {
+      width: 85vw;
+      max-width: 360px;
+      margin-bottom: 20px;
+      mix-blend-mode: multiply;
+      filter: none;
+    }
+
+    body.fleer-mode .splash-description {
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(0,0,0,0.6);
+      max-width: 320px;
+      margin-top: -159px;
+      margin-bottom: 26px;
+    }
+
+    body.fleer-mode .splash-hint {
+      color: rgba(0,0,0,0.35);
+    }
+
+    body.fleer-mode .tap-icon {
+      border-color: rgba(0,0,0,0.25);
+    }
+
+    body.fleer-mode .tap-icon::after {
+      background: rgba(0,0,0,0.3);
+    }
+
+    body.fleer-mode .mode-link {
+      color: rgba(0,0,0,0.4);
+    }
+
+    body.fleer-mode .total-value {
+      color: rgba(0,0,0,0.4);
+    }
+
+
     /* Full-screen app container */
     .app {
       position: fixed;
@@ -61,18 +105,19 @@
     }
 
     .splash-logo {
-      width: 85vw;
-      max-width: 360px;
-      margin-bottom: 40px;
+      width: 80vw;
+      max-width: 340px;
+      margin-bottom: 35px;
       filter: drop-shadow(0 4px 30px rgba(0,0,0,0.6));
     }
 
+
     .splash-description {
-      font-size: 16px;
-      line-height: 1.7;
+      font-size: 15px;
+      line-height: 1.65;
       color: rgba(255,255,255,0.6);
-      max-width: 320px;
-      margin-bottom: 50px;
+      max-width: 310px;
+      margin-bottom: 45px;
     }
 
     .splash-hint {
@@ -157,6 +202,41 @@
       pointer-events: none;
     }
 
+    /* Pokemon pack - different aspect ratio */
+    .pack.pokemon-pack {
+      aspect-ratio: 2/3;
+    }
+
+    .pack.pokemon-pack img {
+      object-fit: contain;
+    }
+
+    /* Fleer pack - wax pack aspect ratio */
+    .pack.fleer-pack {
+      aspect-ratio: 318/439;
+    }
+
+    .pack.fleer-pack img {
+      object-fit: contain;
+    }
+
+    /* Fleer card styling - basketball card proportions */
+    .card.fleer-card img,
+    .card-next.fleer-card img {
+      border-radius: 8px;
+    }
+
+    /* Fleer price at top right to avoid player names */
+    .card.fleer-card .card-value {
+      bottom: auto;
+      top: 12px;
+      left: auto;
+      right: 12px;
+      transform: none;
+      font-size: 16px;
+      padding: 6px 12px;
+    }
+
     .pack-hint {
       font-size: 14px;
       color: rgba(255,255,255,0.4);
@@ -226,7 +306,7 @@
       inset: 0;
       border-radius: 16px;
       overflow: hidden;
-      background: #0a0a0a;
+      background: transparent;
       box-shadow: 0 10px 30px rgba(0,0,0,0.4);
       transform: scale(0.92);
       filter: brightness(0.7);
@@ -260,7 +340,7 @@
       inset: 0;
       border-radius: 16px;
       overflow: hidden;
-      background: #0a0a0a;
+      background: transparent;
       box-shadow: 0 15px 50px rgba(0,0,0,0.5);
       will-change: transform;
       z-index: 2;
@@ -530,8 +610,13 @@
     }
 
     .mini-card.empty {
-      border: 1px dashed rgba(255,255,255,0.15);
-      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .mini-card.empty:active {
+      background: rgba(255,255,255,0.15);
+      transform: scale(0.95);
     }
 
     .mini-card.rare-mini {
@@ -728,10 +813,25 @@
         opacity: 1;
       }
     }
+
+    /* Chase card glow (Pokemon) */
+    .card.chase {
+      box-shadow: 0 0 80px rgba(255, 140, 0, 0.5), 0 0 120px rgba(255, 215, 0, 0.3);
+    }
+
+    .card-next.chase {
+      box-shadow: 0 0 50px rgba(255, 140, 0, 0.4), 0 0 80px rgba(255, 215, 0, 0.2);
+    }
+
+    /* Pokemon card - no white border crop needed */
+    .card.pokemon-card img,
+    .card-next.pokemon-card img {
+      clip-path: none;
+    }
   </style>
 </head>
 <body>
-  <a href="index.html" class="mode-link">← Back</a>
+  <a href="#" class="mode-link" id="backLink">← Back</a>
   <div class="total-value" id="totalValue">
     <span class="label">Total</span>
     <span class="amount" id="totalAmount">$0</span>
@@ -740,8 +840,8 @@
   <div class="app">
     <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
-      <img src="mtg-logo.png" alt="Magic: The Gathering" class="splash-logo">
-      <div class="splash-description">
+      <img src="mtg-logo.png" alt="Logo" class="splash-logo" id="splashLogo">
+      <div class="splash-description" id="splashDescription">
         Premiering in August 1993, Limited Edition Alpha was the first Magic: The Gathering set. The one that started it all.
       </div>
       <div class="splash-hint">
@@ -818,11 +918,48 @@
   <!-- Screen flash -->
   <div class="screen-flash" id="screenFlash"></div>
 
-  <script src="card-data.js?v=20260122b"></script>
-  <script src="price-data.js?v=20260122b"></script>
+  <script src="card-data.js?v=20260123"></script>
+  <script src="price-data.js?v=20260123"></script>
+  <script src="pokemon-data.js?v=20260123"></script>
+  <script src="fleer-1986-data.js?v=20260123"></script>
   <script>
+    // ==================== GAME CONFIG ====================
+    const GAME_CONFIG = {
+      mtg: {
+        name: 'Magic: The Gathering',
+        setName: 'Alpha',
+        logo: 'mtg-logo.png',
+        packArt: 'booster-pack-art.png',
+        description: 'Premiering in August 1993, Limited Edition Alpha was the first Magic: The Gathering set. The one that started it all.',
+        packSize: { commons: 11, uncommons: 3, rares: 1 },
+        chaseKey: 'isPowerNine',
+        chaseLabel: 'Power 9'
+      },
+      pokemon: {
+        name: 'Pokemon',
+        setName: 'Base Set 1st Edition',
+        logo: 'pokemon-logo.png',
+        packArt: 'pokemon-pack-charizard.jpg',
+        description: 'The original 1999 Pokemon Base Set that started the global phenomenon. Chase the legendary Charizard.',
+        packSize: { commons: 7, uncommons: 3, rares: 1 },
+        chaseKey: 'isChase',
+        chaseLabel: 'Chase'
+      },
+      fleer: {
+        name: '1986-87 Fleer Basketball',
+        setName: '1986-87 Fleer',
+        logo: 'fleer-logo.png',
+        packArt: 'fleer-pack.webp',
+        description: 'The most iconic basketball card set ever. 132 cards featuring Michael Jordan\'s legendary rookie card.',
+        packSize: { cards: 12, stickers: 1 },
+        chaseKey: 'isJordan',
+        chaseLabel: 'Jordan RC'
+      }
+    };
+
     // ==================== STATE ====================
     const state = {
+      gameMode: 'mtg',
       cards: [],
       currentIndex: 0,
       packValue: 0,
@@ -841,13 +978,14 @@
       touchStartTime: 0
     };
 
-    const setCode = 'lea';
-
     // ==================== ELEMENTS ====================
     const els = {
       splashScreen: document.getElementById('splashScreen'),
+      splashLogo: document.getElementById('splashLogo'),
+      splashDescription: document.getElementById('splashDescription'),
       packScreen: document.getElementById('packScreen'),
       pack: document.getElementById('pack'),
+      packImage: document.getElementById('packImage'),
       cardScreen: document.getElementById('cardScreen'),
       cardWrapper: document.getElementById('cardWrapper'),
       card: document.getElementById('card'),
@@ -874,7 +1012,8 @@
       screenFlash: document.getElementById('screenFlash'),
       totalValue: document.getElementById('totalValue'),
       totalAmount: document.getElementById('totalAmount'),
-      swipeHint: document.getElementById('swipeHint')
+      swipeHint: document.getElementById('swipeHint'),
+      backLink: document.getElementById('backLink')
     };
 
     // ==================== UTILITIES ====================
@@ -892,32 +1031,99 @@
     }
 
     function generatePack() {
+      const config = GAME_CONFIG[state.gameMode];
+
+      if (state.gameMode === 'fleer') {
+        // 1986 Fleer: 12 random cards + 1 sticker
+        // Sort by price: commons first, stars last (authentic pack order)
+        const cards = pickRandom(FLEER_1986.cards, 12);
+        cards.sort((a, b) => a.price - b.price);
+        cards.forEach(c => {
+          c.rarity = c.rookie ? 'rookie' : 'base';
+          c.isJordan = c.name === 'Michael Jordan';
+        });
+        const sticker = pickRandom(FLEER_1986.stickers, 1)[0];
+        sticker.isSticker = true;
+        sticker.rarity = 'sticker';
+        sticker.isJordan = sticker.name.includes('Michael Jordan');
+        return [...cards, sticker];
+      }
+
+      if (state.gameMode === 'pokemon') {
+        const pool = POKEMON_BASE_SET;
+        if (!pool) return [];
+
+        const { commons, uncommons, rares } = config.packSize;
+
+        const commonCards = pickRandom(pool.commons, commons);
+        commonCards.forEach(c => c.rarity = 'common');
+
+        const uncommonCards = pickRandom(pool.uncommons, uncommons);
+        uncommonCards.forEach(c => c.rarity = 'uncommon');
+
+        // Pokemon holo rare chance (~33%)
+        let rareCard;
+        if (pool.holoRares && Math.random() < 0.33) {
+          rareCard = pickRandom(pool.holoRares, 1)[0];
+          rareCard.rarity = 'holo';
+          rareCard.isChase = POKEMON_BASE_SET.chaseCards.includes(rareCard.name);
+        } else {
+          rareCard = pickRandom(pool.rares, 1)[0];
+          rareCard.rarity = 'rare';
+        }
+
+        return [...commonCards, ...uncommonCards, rareCard];
+      }
+
+      // MTG
       const pool = ALPHA_CARDS;
       if (!pool) return [];
 
-      const commons = pickRandom(pool.commons, 11);
+      const { commons: cCount, uncommons: uCount, rares: rCount } = config.packSize;
+
+      const commons = pickRandom(pool.commons, cCount);
       commons.forEach(c => c.rarity = 'common');
 
-      const uncommons = pickRandom(pool.uncommons, 3);
+      const uncommons = pickRandom(pool.uncommons, uCount);
       uncommons.forEach(c => c.rarity = 'uncommon');
 
-      const rare = pickRandom(pool.rares, 1)[0];
+      const rare = pickRandom(pool.rares, rCount)[0];
       rare.rarity = 'rare';
 
       return [...commons, ...uncommons, rare];
     }
 
     function getPrice(cardName, rarity) {
-      // Try specific card price first
+      if (state.gameMode === 'fleer') {
+        // Fleer pricing from data file
+        if (typeof getFleerCardPrice === 'function') {
+          const p = getFleerCardPrice(cardName);
+          if (p !== null) return p;
+        }
+        // Fleer defaults
+        const defaults = { rookie: 20, base: 5, sticker: 10 };
+        return defaults[rarity] || 5;
+      }
+
+      if (state.gameMode === 'pokemon') {
+        // Try specific Pokemon card price
+        if (typeof getPokemonCardPrice === 'function') {
+          const p = getPokemonCardPrice(cardName);
+          if (p !== null) return p;
+        }
+        // Pokemon rarity defaults
+        const defaults = { holo: 1500, rare: 100, uncommon: 30, common: 15 };
+        return defaults[rarity] || 15;
+      }
+
+      // MTG pricing
       if (typeof getCardPrice === 'function') {
-        const p = getCardPrice(cardName, setCode);
+        const p = getCardPrice(cardName, 'lea');
         if (p !== null) return p;
       }
-      // Fall back to rarity-based default
       if (typeof getDefaultPrice === 'function') {
-        return getDefaultPrice(setCode, rarity || 'common');
+        return getDefaultPrice('lea', rarity || 'common');
       }
-      // Ultimate fallback based on Alpha prices
       const defaults = { common: 150, uncommon: 400, rare: 1500 };
       return defaults[rarity] || 150;
     }
@@ -928,8 +1134,22 @@
       return '$' + price.toFixed(2);
     }
 
-    function getImageUrl(cardName) {
-      return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}&set=${setCode}&format=image&version=normal`;
+    function getImageUrl(card) {
+      if (state.gameMode === 'fleer') {
+        // Fleer uses local images
+        if (card.isSticker) {
+          return `fleer-stickers/${card.number}.jpg`;
+        }
+        return `fleer-cards/${card.number}.jpg`;
+      }
+      if (state.gameMode === 'pokemon') {
+        // Pokemon TCG API uses card number (e.g., "4/102" → "4")
+        const num = card.number ? card.number.split('/')[0] : '1';
+        return `https://images.pokemontcg.io/base1/${num}_hires.png`;
+      }
+      // MTG Scryfall - card can be string (name) or object
+      const cardName = typeof card === 'string' ? card : card.name;
+      return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}&set=lea&format=image&version=normal`;
     }
 
     function haptic(type) {
@@ -951,6 +1171,66 @@
       els.packScreen.classList.add('visible');
 
       haptic('light');
+    }
+
+    // ==================== MODE SWITCHING ====================
+    function switchGameMode() {
+      // Cycle through: mtg -> pokemon -> fleer -> mtg
+      const modes = ['mtg', 'pokemon', 'fleer'];
+      const currentIndex = modes.indexOf(state.gameMode);
+      state.gameMode = modes[(currentIndex + 1) % modes.length];
+      updateUIForMode();
+      initPack(); // Re-generate pack for new mode
+      haptic('medium');
+    }
+
+    function goBackToSplash() {
+      // Reset all state
+      state.showingSplash = true;
+      state.packOpened = false;
+      state.packComplete = false;
+      state.isAnimating = false;
+      state.sheetOpen = false;
+      state.detailsOpen = false;
+
+      // Hide everything and show splash
+      els.cardScreen.classList.remove('active');
+      els.packScreen.classList.remove('visible', 'hidden');
+      els.splashScreen.classList.remove('hidden');
+      els.pack.classList.remove('tearing');
+      els.pack.style.transform = '';
+      els.progressDots.classList.remove('visible');
+      els.card.classList.remove('rare', 'power9', 'chase', 'pokemon-card', 'fleer-card', 'deal-normal', 'deal-rare', 'deal-power9', 'swipe-out');
+      els.cardValue.classList.remove('visible');
+      els.cardNext.style.visibility = 'hidden';
+      els.cardNext.classList.remove('rare', 'power9', 'chase', 'peeking', 'pokemon-card');
+      els.cardNext.style.transform = '';
+      els.cardNext.style.filter = '';
+      els.totalValue.classList.remove('visible');
+      els.totalAmount.textContent = '$0';
+      els.swipeHint.classList.remove('visible');
+      els.bottomSheet.classList.remove('open');
+      els.sheetBackdrop.classList.remove('visible');
+      els.cardDetails.classList.remove('visible');
+
+      // Re-init pack for current mode
+      updateUIForMode();
+      initPack();
+    }
+
+    function updateUIForMode() {
+      const config = GAME_CONFIG[state.gameMode];
+      els.splashLogo.src = config.logo;
+      els.splashDescription.textContent = config.description;
+      els.packImage.src = config.packArt;
+
+      // Update pack styling for different aspect ratios
+      els.pack.classList.remove('pokemon-pack', 'fleer-pack');
+      if (state.gameMode === 'pokemon') els.pack.classList.add('pokemon-pack');
+      if (state.gameMode === 'fleer') els.pack.classList.add('fleer-pack');
+
+      // Fleer mode uses cream background
+      document.body.classList.toggle('fleer-mode', state.gameMode === 'fleer');
     }
 
     // ==================== PACK OPENING ====================
@@ -983,7 +1263,7 @@
 
       // Pre-load first two cards before transition
       const firstCard = state.cards[0];
-      els.cardImg.src = getImageUrl(firstCard.name);
+      els.cardImg.src = getImageUrl(firstCard);
 
       setTimeout(() => {
         state.packOpened = true;
@@ -1014,21 +1294,24 @@
       els.totalAmount.textContent = formatPrice(state.packValue);
 
       // Update card display
-      els.cardImg.src = getImageUrl(card.name);
+      els.cardImg.src = getImageUrl(card);
       els.cardValue.textContent = formatPrice(price);
 
       // Pre-load next card underneath for peek effect
       preloadNextCard(index + 1);
 
       // Determine animation type
-      const isPower9 = card.isPowerNine;
-      const isRare = card.rarity === 'rare';
+      const config = GAME_CONFIG[state.gameMode];
+      const isChase = card[config.chaseKey] || card.isChase;
+      const isRare = card.rarity === 'rare' || card.rarity === 'holo';
       const isLastCard = index === state.cards.length - 1;
 
       // Apply rarity class
-      els.card.classList.remove('rare', 'power9', 'deal-normal', 'deal-rare', 'deal-power9', 'swipe-out');
-      if (isPower9) {
-        els.card.classList.add('power9');
+      els.card.classList.remove('rare', 'power9', 'chase', 'deal-normal', 'deal-rare', 'deal-power9', 'swipe-out', 'pokemon-card', 'fleer-card');
+      if (state.gameMode === 'pokemon') els.card.classList.add('pokemon-card');
+      if (state.gameMode === 'fleer') els.card.classList.add('fleer-card');
+      if (isChase) {
+        els.card.classList.add(state.gameMode === 'mtg' ? 'power9' : 'chase');
       } else if (isRare) {
         els.card.classList.add('rare');
       }
@@ -1048,7 +1331,7 @@
 
       // Animate in
       requestAnimationFrame(() => {
-        if (isPower9) {
+        if (isChase) {
           els.card.classList.add('deal-power9');
           flashScreen('power9');
           haptic('power9');
@@ -1063,7 +1346,7 @@
       });
 
       // Show value after animation
-      const delay = isPower9 ? 1000 : isRare ? 700 : 400;
+      const delay = isChase ? 1000 : isRare ? 700 : 400;
       setTimeout(() => {
         els.cardValue.classList.add('visible');
         state.isAnimating = false;
@@ -1086,13 +1369,17 @@
 
       const nextCard = state.cards[nextIndex];
       els.cardNext.style.visibility = 'visible';
-      els.cardNextImg.src = getImageUrl(nextCard.name);
+      els.cardNextImg.src = getImageUrl(nextCard);
 
       // Apply rarity glow to preview
-      els.cardNext.classList.remove('rare', 'power9');
-      if (nextCard.isPowerNine) {
-        els.cardNext.classList.add('power9');
-      } else if (nextCard.rarity === 'rare') {
+      const config = GAME_CONFIG[state.gameMode];
+      const isChase = nextCard[config.chaseKey] || nextCard.isChase;
+      els.cardNext.classList.remove('rare', 'power9', 'chase', 'pokemon-card', 'fleer-card');
+      if (state.gameMode === 'pokemon') els.cardNext.classList.add('pokemon-card');
+      if (state.gameMode === 'fleer') els.cardNext.classList.add('fleer-card');
+      if (isChase) {
+        els.cardNext.classList.add(state.gameMode === 'mtg' ? 'power9' : 'chase');
+      } else if (nextCard.rarity === 'rare' || nextCard.rarity === 'holo') {
         els.cardNext.classList.add('rare');
       }
     }
@@ -1158,10 +1445,12 @@
       // Haptic for the next card reveal
       const nextCard = state.cards[state.currentIndex + 1];
       if (nextCard) {
-        if (nextCard.isPowerNine) {
+        const config = GAME_CONFIG[state.gameMode];
+        const nextIsChase = nextCard[config.chaseKey] || nextCard.isChase;
+        if (nextIsChase) {
           haptic('power9');
           flashScreen('power9');
-        } else if (nextCard.rarity === 'rare' || state.currentIndex + 1 === state.cards.length - 1) {
+        } else if (nextCard.rarity === 'rare' || nextCard.rarity === 'holo' || state.currentIndex + 1 === state.cards.length - 1) {
           haptic('heavy');
           flashScreen('rare');
         } else {
@@ -1177,13 +1466,15 @@
         const nextIndex = state.currentIndex + 1;
         if (nextIndex < state.cards.length) {
           const nextCard = state.cards[nextIndex];
-          els.cardImg.src = getImageUrl(nextCard.name);
+          els.cardImg.src = getImageUrl(nextCard);
 
           // Apply rarity to current card
-          els.card.classList.remove('rare', 'power9');
-          if (nextCard.isPowerNine) {
-            els.card.classList.add('power9');
-          } else if (nextCard.rarity === 'rare') {
+          const config = GAME_CONFIG[state.gameMode];
+          const nextIsChase = nextCard[config.chaseKey] || nextCard.isChase;
+          els.card.classList.remove('rare', 'power9', 'chase');
+          if (nextIsChase) {
+            els.card.classList.add(state.gameMode === 'mtg' ? 'power9' : 'chase');
+          } else if (nextCard.rarity === 'rare' || nextCard.rarity === 'holo') {
             els.card.classList.add('rare');
           }
         }
@@ -1230,29 +1521,7 @@
       els.sheetValue.textContent = formatPrice(state.packValue);
 
       // Build mini cards grid
-      els.sheetCards.innerHTML = '';
-      for (let i = 0; i < state.cards.length; i++) {
-        const mini = document.createElement('div');
-        mini.className = 'mini-card';
-        if (state.revealed[i]) {
-          const card = state.revealed[i];
-          const img = document.createElement('img');
-          img.src = getImageUrl(card.name);
-          mini.appendChild(img);
-          if (card.rarity === 'rare' || card.isPowerNine) {
-            mini.classList.add('rare-mini');
-          }
-          // Click to enlarge
-          mini.addEventListener('click', (e) => {
-            e.stopPropagation();
-            showCardFromSheet(card);
-          });
-          mini.style.cursor = 'pointer';
-        } else {
-          mini.classList.add('empty');
-        }
-        els.sheetCards.appendChild(mini);
-      }
+      renderSheetCards();
 
       // Show/hide buttons
       if (isComplete) {
@@ -1265,6 +1534,87 @@
 
       els.sheetBackdrop.classList.add('visible');
       els.bottomSheet.classList.add('open');
+    }
+
+    function renderSheetCards() {
+      els.sheetCards.innerHTML = '';
+      for (let i = 0; i < state.cards.length; i++) {
+        const mini = document.createElement('div');
+        mini.className = 'mini-card';
+        if (state.revealed[i]) {
+          const card = state.revealed[i];
+          const img = document.createElement('img');
+          img.src = getImageUrl(card);
+          mini.appendChild(img);
+          const config = GAME_CONFIG[state.gameMode];
+          if (card.rarity === 'rare' || card.rarity === 'holo' || card[config.chaseKey] || card.isChase) {
+            mini.classList.add('rare-mini');
+          }
+          // Click to enlarge
+          mini.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showCardFromSheet(card);
+          });
+          mini.style.cursor = 'pointer';
+        } else {
+          mini.classList.add('empty');
+          // Tap empty slot to speed reveal
+          mini.addEventListener('click', (e) => {
+            e.stopPropagation();
+            revealNextFromSheet();
+          });
+          mini.style.cursor = 'pointer';
+        }
+        els.sheetCards.appendChild(mini);
+      }
+    }
+
+    function revealNextFromSheet() {
+      const nextIndex = state.revealed.length;
+      if (nextIndex >= state.cards.length) return;
+
+      // Reveal the next card
+      const card = state.cards[nextIndex];
+      const price = getPrice(card.name, card.rarity);
+      card.price = price;
+
+      state.currentIndex = nextIndex;
+      state.packValue += price;
+      state.revealed.push(card);
+
+      // Update totals
+      els.totalAmount.textContent = formatPrice(state.packValue);
+      els.sheetValue.textContent = formatPrice(state.packValue);
+
+      // Haptic feedback
+      const config = GAME_CONFIG[state.gameMode];
+      const isChase = card[config.chaseKey] || card.isChase;
+      if (isChase) {
+        haptic('power9');
+      } else if (card.rarity === 'rare' || card.rarity === 'holo') {
+        haptic('heavy');
+      } else {
+        haptic('light');
+      }
+
+      // Re-render the grid
+      renderSheetCards();
+
+      // Update progress dots
+      updateProgressDots(nextIndex);
+
+      // Also update the main card display for when they go back
+      els.cardImg.src = getImageUrl(card);
+      els.cardValue.textContent = formatPrice(price);
+      preloadNextCard(nextIndex + 1);
+
+      // Check if pack complete
+      if (state.revealed.length >= state.cards.length) {
+        state.packComplete = true;
+        els.sheetTitle.textContent = 'Pack Complete!';
+        els.btnNewPack.style.display = 'block';
+        els.btnContinue.textContent = 'View Cards';
+      }
     }
 
     function hideSheet() {
@@ -1285,13 +1635,15 @@
       els.cardScreen.classList.remove('active');
       els.packScreen.classList.add('visible');
       els.packScreen.classList.remove('hidden');
-      els.pack.classList.remove('tearing');
+      els.pack.classList.remove('tearing', 'pokemon-pack', 'fleer-pack');
+      if (state.gameMode === 'pokemon') els.pack.classList.add('pokemon-pack');
+      if (state.gameMode === 'fleer') els.pack.classList.add('fleer-pack');
       els.pack.style.transform = '';
       els.progressDots.classList.remove('visible');
-      els.card.classList.remove('rare', 'power9');
+      els.card.classList.remove('rare', 'power9', 'chase', 'pokemon-card', 'fleer-card');
       els.cardValue.classList.remove('visible');
       els.cardNext.style.visibility = 'hidden';
-      els.cardNext.classList.remove('rare', 'power9', 'peeking');
+      els.cardNext.classList.remove('rare', 'power9', 'chase', 'peeking', 'pokemon-card', 'fleer-card');
       els.cardNext.style.transform = '';
       els.cardNext.style.filter = '';
       els.btnNewPack.style.display = 'none';
@@ -1299,6 +1651,10 @@
       els.totalValue.classList.remove('visible');
       els.totalAmount.textContent = '$0';
       els.swipeHint.classList.remove('visible');
+
+      // Update pack image for current mode
+      const config = GAME_CONFIG[state.gameMode];
+      els.packImage.src = config.packArt;
 
       // Generate new pack
       initPack();
@@ -1317,11 +1673,25 @@
 
     function showCardDetails(card) {
       state.detailsOpen = true;
-      els.detailImg.src = getImageUrl(card.name);
+      els.detailImg.src = getImageUrl(card);
       els.detailName.textContent = card.name;
       // Format rarity for display
-      const rarityDisplay = card.isPowerNine ? 'Power 9' :
-        card.rarity ? card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1) : 'Common';
+      const config = GAME_CONFIG[state.gameMode];
+      const isChase = card[config.chaseKey] || card.isChase;
+      const rarityText = card.rarity ? card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1) : 'Common';
+      let rarityDisplay;
+      if (isChase) {
+        // For Pokemon, show "Chase Holo" etc; for MTG "Power 9"; for Fleer "Jordan RC"
+        if (state.gameMode === 'pokemon') {
+          rarityDisplay = `${config.chaseLabel} ${rarityText}`;
+        } else {
+          rarityDisplay = config.chaseLabel;
+        }
+      } else if (state.gameMode === 'fleer' && card.isSticker) {
+        rarityDisplay = 'Sticker';
+      } else {
+        rarityDisplay = rarityText;
+      }
       els.detailSet.textContent = rarityDisplay;
       els.detailPrice.textContent = formatPrice(card.price || getPrice(card.name, card.rarity));
       els.cardDetails.classList.add('visible');
@@ -1362,9 +1732,19 @@
       const dt = Date.now() - state.touchStartTime;
       const isTap = Math.abs(dx) < 20 && Math.abs(dy) < 20 && dt < 400;
 
-      // Only tap dismisses splash (no swipe)
+      // Check if tap was on the logo
+      const touch = e.changedTouches[0];
+      const tappedElement = document.elementFromPoint(touch.clientX, touch.clientY);
+      const tappedLogo = tappedElement === els.splashLogo || els.splashLogo.contains(tappedElement);
+
       if (isTap) {
-        dismissSplash();
+        if (tappedLogo) {
+          // Tap on logo - switch mode
+          switchGameMode();
+        } else {
+          // Tap elsewhere - dismiss splash
+          dismissSplash();
+        }
       }
     }
 
@@ -1484,6 +1864,12 @@
     els.sheetBackdrop.addEventListener('click', hideSheet);
     els.btnContinue.addEventListener('click', hideSheet);
     els.btnNewPack.addEventListener('click', startNewPack);
+
+    // Back link - return to splash
+    els.backLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      goBackToSplash();
+    });
 
     // ==================== INIT ====================
     initPack();
