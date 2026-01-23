@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>1986 Fleer Basketball</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      height: 100dvh;
+      touch-action: none;
+    }
+
+    .app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    /* Splash screen */
+    .splash-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px 180px 30px;
+      text-align: center;
+      background: linear-gradient(180deg, #f5f5f0 0%, #e8e4dc 100%);
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-logo {
+      width: 85vw;
+      max-width: 360px;
+      margin-bottom: 20px;
+      mix-blend-mode: multiply;
+    }
+
+    .splash-description {
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(0,0,0,0.6);
+      max-width: 320px;
+      margin-top: -130px;
+      margin-bottom: 50px;
+    }
+
+    .splash-hint {
+      font-size: 13px;
+      color: rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tap-icon {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(0,0,0,0.25);
+      border-radius: 50%;
+      position: relative;
+      animation: tapPulse 2s ease-in-out infinite;
+    }
+
+    .tap-icon::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes tapPulse {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* Pack screen */
+    .pack-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .pack-screen.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .pack-screen.hidden {
+      display: none;
+    }
+
+    .pack {
+      width: 65vw;
+      max-width: 260px;
+      aspect-ratio: 2.5/3.5;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease;
+    }
+
+    .pack img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .pack-hint {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+    }
+
+    .pack-hint .arrow {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 8px;
+      animation: bounceUp 1.5s ease-in-out infinite;
+    }
+
+    @keyframes bounceUp {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    @keyframes packTear {
+      0% {
+        clip-path: inset(0 0 0 0);
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      30% {
+        clip-path: inset(0 0 30% 0);
+        transform: scale(1.05) translateY(-15px);
+        filter: brightness(1.3);
+      }
+      100% {
+        clip-path: inset(0 0 100% 0);
+        transform: scale(1.1) translateY(-40px);
+        opacity: 0;
+      }
+    }
+
+    .pack.tearing {
+      animation: packTear 0.5s ease-out forwards;
+    }
+
+    /* Card screen */
+    .card-screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-screen.active {
+      display: flex;
+    }
+
+    .card-wrapper {
+      position: relative;
+      width: 85vw;
+      max-width: 380px;
+      aspect-ratio: 2.5/3.5;
+    }
+
+    .card-next {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1a1a2e;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transform: scale(0.92);
+      filter: brightness(0.7);
+      transition: transform 0.3s ease, filter 0.3s ease;
+      z-index: 1;
+      visibility: hidden;
+    }
+
+    .card-next.peeking {
+      transition: none;
+    }
+
+    .card-next.rookie {
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .card-next.jordan {
+      box-shadow: 0 0 50px rgba(233, 69, 96, 0.5), 0 0 80px rgba(255, 215, 0, 0.3);
+    }
+
+    .card {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #1a1a2e;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+      will-change: transform;
+      z-index: 2;
+    }
+
+    .card.rookie {
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.4), 0 15px 50px rgba(0,0,0,0.5);
+    }
+
+    .card.jordan {
+      box-shadow: 0 0 80px rgba(233, 69, 96, 0.6), 0 0 120px rgba(255, 215, 0, 0.4);
+    }
+
+    .card.dragging {
+      transition: none !important;
+    }
+
+    /* Card placeholder when no image */
+    .card-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .card-placeholder .card-number {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 10px;
+    }
+
+    .card-placeholder .card-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .card-placeholder .card-team {
+      font-size: 14px;
+      color: #e94560;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-placeholder .rookie-badge {
+      margin-top: 15px;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      color: #000;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-value {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #4ade80;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .card-value.visible {
+      opacity: 1;
+    }
+
+    /* Animations */
+    @keyframes cardDeal {
+      0% {
+        transform: scale(0.5) translateY(100px) rotate(10deg);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.05) translateY(-10px) rotate(-2deg);
+      }
+      100% {
+        transform: scale(1) translateY(0) rotate(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes rookieDeal {
+      0% {
+        transform: scale(0.3) rotateY(180deg);
+        opacity: 0;
+        filter: brightness(2);
+      }
+      50% {
+        transform: scale(1.1) rotateY(0);
+        filter: brightness(1.5);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1);
+      }
+    }
+
+    @keyframes jordanDeal {
+      0% {
+        transform: scale(0.1) rotateY(360deg) rotateX(20deg);
+        opacity: 0;
+        filter: brightness(3) saturate(2);
+      }
+      40% {
+        transform: scale(1.2) rotateY(0) rotateX(0);
+        filter: brightness(2) saturate(1.5);
+      }
+      70% {
+        transform: scale(0.95);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1) saturate(1);
+      }
+    }
+
+    .card.deal-normal {
+      animation: cardDeal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .card.deal-rookie {
+      animation: rookieDeal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .card.deal-jordan {
+      animation: jordanDeal 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes swipeOut {
+      to {
+        transform: var(--swipe-transform);
+        opacity: 0;
+      }
+    }
+
+    .card.swipe-out {
+      animation: swipeOut 0.25s ease-out forwards;
+    }
+
+    /* Progress dots */
+    .progress-dots {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      padding: 10px 16px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .progress-dots.visible {
+      opacity: 1;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.2s ease;
+    }
+
+    .dot.revealed {
+      background: #e94560;
+    }
+
+    .dot.current {
+      background: #fff;
+      transform: scale(1.4);
+    }
+
+    .dot.sticker-dot {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+    }
+
+    /* Total value */
+    .total-value {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .total-value.visible {
+      opacity: 1;
+    }
+
+    .total-value .amount {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    /* Swipe hint */
+    .swipe-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 12px;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .swipe-hint.visible {
+      opacity: 1;
+    }
+
+    .swipe-hint .hint-arrow {
+      font-size: 36px;
+      color: rgba(255,255,255,0.8);
+      animation: swipeUpHint 1.2s ease-in-out infinite;
+    }
+
+    .swipe-hint .hint-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 12px;
+    }
+
+    @keyframes swipeUpHint {
+      0%, 100% { transform: translateY(10px); opacity: 0.5; }
+      50% { transform: translateY(-10px); opacity: 1; }
+    }
+
+    /* Screen flash */
+    .screen-flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 500;
+    }
+
+    .screen-flash.rookie-flash {
+      background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, transparent 70%);
+      animation: flash 0.5s ease-out forwards;
+    }
+
+    .screen-flash.jordan-flash {
+      background: radial-gradient(circle, rgba(233,69,96,0.6) 0%, rgba(255,215,0,0.3) 40%, transparent 70%);
+      animation: flash 0.8s ease-out forwards;
+    }
+
+    @keyframes flash {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Card details overlay */
+    .card-details {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 200;
+    }
+
+    .card-details.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .detail-card {
+      width: 80vw;
+      max-width: 320px;
+      aspect-ratio: 2.5/3.5;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .detail-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .detail-info {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 12px;
+    }
+
+    .detail-price {
+      font-size: 32px;
+      font-weight: 800;
+      color: #4ade80;
+    }
+
+    .detail-hint {
+      position: absolute;
+      bottom: max(30px, env(safe-area-inset-bottom));
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* Bottom sheet */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+
+    .sheet-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 75vh;
+      background: #1a1a2e;
+      border-radius: 24px 24px 0 0;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 101;
+      overflow: hidden;
+    }
+
+    .bottom-sheet.open {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      margin: 12px auto;
+    }
+
+    .sheet-content {
+      padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+      max-height: calc(75vh - 30px);
+      overflow-y: auto;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sheet-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #4ade80;
+    }
+
+    .sheet-cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .mini-card {
+      aspect-ratio: 2.5/3.5;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #2a2a4a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 4px;
+    }
+
+    .mini-card.empty {
+      border: 1px dashed rgba(255,255,255,0.15);
+      background: transparent;
+    }
+
+    .mini-card.rookie-mini {
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    .mini-card.jordan-mini {
+      box-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .sheet-btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .sheet-btn:active {
+      transform: scale(0.97);
+    }
+
+    .sheet-btn.primary {
+      background: linear-gradient(135deg, #e94560, #c73e54);
+      color: #fff;
+    }
+
+    .sheet-btn.secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="total-value" id="totalValue">
+    <span class="label">Total </span>
+    <span class="amount" id="totalAmount">$0</span>
+  </div>
+
+  <div class="app">
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+      <img src="fleer-logo.png" alt="Fleer NBA Basketball" class="splash-logo">
+      <div class="splash-description">
+        The most iconic basketball card set ever produced. Home of the legendary Michael Jordan rookie card.
+      </div>
+      <div class="splash-hint">
+        <div class="tap-icon"></div>
+        Tap to continue
+      </div>
+    </div>
+
+    <!-- Pack Screen -->
+    <div class="pack-screen" id="packScreen">
+      <div class="pack" id="pack">
+        <img src="fleer-pack.webp" alt="1986 Fleer Pack">
+      </div>
+      <div class="pack-hint">
+        <span class="arrow">↑</span>
+        Swipe up to open
+      </div>
+    </div>
+
+    <!-- Card Screen -->
+    <div class="card-screen" id="cardScreen">
+      <div class="card-wrapper" id="cardWrapper">
+        <div class="card-next" id="cardNext"></div>
+        <div class="card" id="card">
+          <div class="card-value" id="cardValue">$0</div>
+          <div class="swipe-hint" id="swipeHint">
+            <span class="hint-arrow">↑</span>
+            <span class="hint-text">Swipe to reveal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress dots -->
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <!-- Card details overlay -->
+  <div class="card-details" id="cardDetails">
+    <div class="detail-card" id="detailCard"></div>
+    <div class="detail-name" id="detailName">Card Name</div>
+    <div class="detail-info" id="detailInfo">Team</div>
+    <div class="detail-price" id="detailPrice">$0</div>
+    <div class="detail-hint">Tap to dismiss</div>
+  </div>
+
+  <!-- Bottom sheet -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <div class="sheet-title" id="sheetTitle">Pack Complete!</div>
+        <div class="sheet-value" id="sheetValue">$0</div>
+      </div>
+      <div class="sheet-cards" id="sheetCards"></div>
+      <div class="sheet-actions">
+        <button class="sheet-btn secondary" id="btnContinue">Continue</button>
+        <button class="sheet-btn primary" id="btnNewPack" style="display:none;">New Pack</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen flash -->
+  <div class="screen-flash" id="screenFlash"></div>
+
+  <script src="fleer-1986-data.js"></script>
+  <script>
+    // ==================== STATE ====================
+    const state = {
+      cards: [],
+      currentIndex: 0,
+      packValue: 0,
+      revealed: [],
+      showingSplash: true,
+      isAnimating: false,
+      isDragging: false,
+      packOpened: false,
+      packComplete: false,
+      sheetOpen: false,
+      detailsOpen: false,
+      touchStartX: 0,
+      touchStartY: 0,
+      touchCurrentX: 0,
+      touchCurrentY: 0,
+      touchStartTime: 0
+    };
+
+    // ==================== ELEMENTS ====================
+    const els = {
+      splashScreen: document.getElementById('splashScreen'),
+      packScreen: document.getElementById('packScreen'),
+      pack: document.getElementById('pack'),
+      cardScreen: document.getElementById('cardScreen'),
+      card: document.getElementById('card'),
+      cardNext: document.getElementById('cardNext'),
+      cardValue: document.getElementById('cardValue'),
+      progressDots: document.getElementById('progressDots'),
+      cardDetails: document.getElementById('cardDetails'),
+      detailCard: document.getElementById('detailCard'),
+      detailName: document.getElementById('detailName'),
+      detailInfo: document.getElementById('detailInfo'),
+      detailPrice: document.getElementById('detailPrice'),
+      sheetBackdrop: document.getElementById('sheetBackdrop'),
+      bottomSheet: document.getElementById('bottomSheet'),
+      sheetTitle: document.getElementById('sheetTitle'),
+      sheetValue: document.getElementById('sheetValue'),
+      sheetCards: document.getElementById('sheetCards'),
+      btnContinue: document.getElementById('btnContinue'),
+      btnNewPack: document.getElementById('btnNewPack'),
+      screenFlash: document.getElementById('screenFlash'),
+      totalValue: document.getElementById('totalValue'),
+      totalAmount: document.getElementById('totalAmount'),
+      swipeHint: document.getElementById('swipeHint')
+    };
+
+    // ==================== UTILITIES ====================
+    function pickRandom(arr, count) {
+      const result = [];
+      const used = new Set();
+      while (result.length < count && used.size < arr.length) {
+        const i = Math.floor(Math.random() * arr.length);
+        if (!used.has(i)) {
+          used.add(i);
+          result.push({...arr[i]});
+        }
+      }
+      return result;
+    }
+
+    function generatePack() {
+      // 1986 Fleer pack: 12 random cards + 1 sticker
+      // Sort by price: commons first, stars/rookies last (like real pack order)
+      const cards = pickRandom(FLEER_1986.cards, 12);
+      cards.sort((a, b) => a.price - b.price);
+      const sticker = pickRandom(FLEER_1986.stickers, 1)[0];
+      sticker.isSticker = true;
+      return [...cards, sticker];
+    }
+
+    function formatPrice(price) {
+      if (price >= 1000) return '$' + (price / 1000).toFixed(1) + 'k';
+      return '$' + price;
+    }
+
+    function isJordan(card) {
+      return card.name.includes('Michael Jordan');
+    }
+
+    function isPremiumRookie(card) {
+      return card.rookie && FLEER_1986.premiumRookies.includes(card.name);
+    }
+
+    function haptic(type) {
+      if (!navigator.vibrate) return;
+      switch (type) {
+        case 'light': navigator.vibrate(10); break;
+        case 'medium': navigator.vibrate([30, 20, 50]); break;
+        case 'heavy': navigator.vibrate([50, 30, 100]); break;
+        case 'jordan': navigator.vibrate([100, 50, 100, 50, 200]); break;
+      }
+    }
+
+    function getCardImageUrl(card) {
+      // Local images: fleer-cards/57.jpg for cards, fleer-stickers/1.jpg for stickers
+      if (card.isSticker) {
+        return `fleer-stickers/${card.number}.jpg`;
+      }
+      return `fleer-cards/${card.number}.jpg`;
+    }
+
+    function renderCardContent(card) {
+      const isJordanCard = isJordan(card);
+      const isPremium = isPremiumRookie(card);
+      const imgUrl = getCardImageUrl(card);
+
+      // Try to load the image, show placeholder on error
+      let html = `<img src="${imgUrl}" alt="${card.name}" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`;
+      html += `<div class="card-placeholder" style="display:none;">`;
+      html += `<div class="card-number">#${card.number}${card.isSticker ? ' STICKER' : ''}</div>`;
+      html += `<div class="card-name">${card.name}</div>`;
+      if (card.team) {
+        html += `<div class="card-team">${card.team}</div>`;
+      }
+      if (card.rookie) {
+        html += `<div class="rookie-badge">Rookie Card</div>`;
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    // ==================== SPLASH ====================
+    function dismissSplash() {
+      if (!state.showingSplash) return;
+      state.showingSplash = false;
+      els.splashScreen.classList.add('hidden');
+      els.packScreen.classList.add('visible');
+      haptic('light');
+    }
+
+    // ==================== PACK ====================
+    function initPack() {
+      state.cards = generatePack();
+      state.currentIndex = 0;
+      state.packValue = 0;
+      state.revealed = [];
+      state.packOpened = false;
+      state.packComplete = false;
+      createProgressDots();
+    }
+
+    function createProgressDots() {
+      els.progressDots.innerHTML = '';
+      state.cards.forEach((card, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        if (card.isSticker) dot.classList.add('sticker-dot');
+        els.progressDots.appendChild(dot);
+      });
+    }
+
+    function tearOpenPack() {
+      if (state.isAnimating) return;
+      state.isAnimating = true;
+      haptic('medium');
+      els.pack.classList.add('tearing');
+
+      setTimeout(() => {
+        state.packOpened = true;
+        els.packScreen.classList.add('hidden');
+        els.cardScreen.classList.add('active');
+        els.progressDots.classList.add('visible');
+        els.totalValue.classList.add('visible');
+        showCard(0);
+      }, 500);
+    }
+
+    // ==================== CARDS ====================
+    function showCard(index, skipAnimation = false) {
+      if (index >= state.cards.length) {
+        finishPack();
+        return;
+      }
+
+      const card = state.cards[index];
+      state.currentIndex = index;
+      state.packValue += card.price;
+      state.revealed.push(card);
+
+      els.totalAmount.textContent = formatPrice(state.packValue);
+      els.card.innerHTML = renderCardContent(card) + `<div class="card-value" id="cardValue">${formatPrice(card.price)}</div>`;
+      els.cardValue = document.getElementById('cardValue');
+
+      preloadNextCard(index + 1);
+
+      const isJordanCard = isJordan(card);
+      const isPremium = isPremiumRookie(card);
+
+      els.card.classList.remove('rookie', 'jordan', 'deal-normal', 'deal-rookie', 'deal-jordan', 'swipe-out');
+      if (isJordanCard) {
+        els.card.classList.add('jordan');
+      } else if (isPremium || card.rookie) {
+        els.card.classList.add('rookie');
+      }
+
+      els.cardNext.classList.remove('peeking');
+      els.cardNext.style.transform = '';
+      els.cardNext.style.filter = '';
+
+      if (skipAnimation) {
+        els.cardValue.classList.add('visible');
+        state.isAnimating = false;
+        updateProgressDots(index);
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        if (isJordanCard) {
+          els.card.classList.add('deal-jordan');
+          flashScreen('jordan');
+          haptic('jordan');
+        } else if (isPremium) {
+          els.card.classList.add('deal-rookie');
+          flashScreen('rookie');
+          haptic('heavy');
+        } else {
+          els.card.classList.add('deal-normal');
+          haptic('light');
+        }
+      });
+
+      const delay = isJordanCard ? 1000 : isPremium ? 700 : 400;
+      setTimeout(() => {
+        els.cardValue.classList.add('visible');
+        state.isAnimating = false;
+        if (index === 0) {
+          els.swipeHint.classList.add('visible');
+        }
+      }, delay);
+
+      updateProgressDots(index);
+    }
+
+    function preloadNextCard(nextIndex) {
+      if (nextIndex >= state.cards.length) {
+        els.cardNext.style.visibility = 'hidden';
+        return;
+      }
+
+      const nextCard = state.cards[nextIndex];
+      els.cardNext.style.visibility = 'visible';
+      els.cardNext.innerHTML = renderCardContent(nextCard);
+
+      els.cardNext.classList.remove('rookie', 'jordan');
+      if (isJordan(nextCard)) {
+        els.cardNext.classList.add('jordan');
+      } else if (isPremiumRookie(nextCard) || nextCard.rookie) {
+        els.cardNext.classList.add('rookie');
+      }
+    }
+
+    function updateNextCardPeek(progress) {
+      const scale = 0.92 + (0.08 * progress);
+      const brightness = 0.7 + (0.3 * progress);
+      els.cardNext.classList.add('peeking');
+      els.cardNext.style.transform = `scale(${scale})`;
+      els.cardNext.style.filter = `brightness(${brightness})`;
+    }
+
+    function resetCardPosition() {
+      els.card.style.transition = 'transform 0.25s ease';
+      els.card.style.transform = '';
+      els.cardNext.classList.remove('peeking');
+      els.cardNext.style.transition = 'transform 0.25s ease, filter 0.25s ease';
+      els.cardNext.style.transform = 'scale(0.92)';
+      els.cardNext.style.filter = 'brightness(0.7)';
+
+      setTimeout(() => {
+        els.card.style.transition = '';
+        els.cardNext.style.transition = '';
+      }, 250);
+    }
+
+    function updateProgressDots(currentIdx) {
+      const dots = els.progressDots.querySelectorAll('.dot');
+      dots.forEach((dot, i) => {
+        dot.classList.remove('current', 'revealed');
+        if (i < currentIdx) dot.classList.add('revealed');
+        else if (i === currentIdx) dot.classList.add('current');
+      });
+    }
+
+    function swipeCardOut(direction) {
+      state.isAnimating = true;
+      els.cardValue.classList.remove('visible');
+
+      els.cardNext.classList.remove('peeking');
+      els.cardNext.style.transition = 'transform 0.25s ease-out, filter 0.25s ease-out';
+      els.cardNext.style.transform = 'scale(1)';
+      els.cardNext.style.filter = 'brightness(1)';
+
+      const transform = direction === 'up'
+        ? 'translateY(-120vh) rotate(5deg)'
+        : 'translateX(-120vw) rotate(-15deg)';
+
+      els.card.style.setProperty('--swipe-transform', transform);
+      els.card.classList.add('swipe-out');
+
+      const nextCard = state.cards[state.currentIndex + 1];
+      if (nextCard) {
+        if (isJordan(nextCard)) {
+          haptic('jordan');
+          flashScreen('jordan');
+        } else if (isPremiumRookie(nextCard)) {
+          haptic('heavy');
+          flashScreen('rookie');
+        } else {
+          haptic('light');
+        }
+      }
+
+      setTimeout(() => {
+        els.card.classList.remove('swipe-out');
+        els.card.style.transform = '';
+
+        const nextIndex = state.currentIndex + 1;
+        if (nextIndex < state.cards.length) {
+          const nextCard = state.cards[nextIndex];
+          els.card.innerHTML = renderCardContent(nextCard) + `<div class="card-value" id="cardValue">${formatPrice(nextCard.price)}</div>`;
+          els.cardValue = document.getElementById('cardValue');
+
+          els.card.classList.remove('rookie', 'jordan');
+          if (isJordan(nextCard)) {
+            els.card.classList.add('jordan');
+          } else if (isPremiumRookie(nextCard) || nextCard.rookie) {
+            els.card.classList.add('rookie');
+          }
+        }
+
+        showCard(state.currentIndex + 1, true);
+
+        setTimeout(() => {
+          els.cardNext.style.transition = '';
+        }, 50);
+      }, 250);
+    }
+
+    function flashScreen(type) {
+      els.screenFlash.className = 'screen-flash ' + type + '-flash';
+      setTimeout(() => {
+        els.screenFlash.className = 'screen-flash';
+      }, type === 'jordan' ? 800 : 500);
+    }
+
+    function finishPack() {
+      state.packComplete = true;
+      state.isAnimating = false;
+
+      const dots = els.progressDots.querySelectorAll('.dot');
+      dots.forEach(dot => {
+        dot.classList.remove('current');
+        dot.classList.add('revealed');
+      });
+
+      setTimeout(() => showSheet(true), 300);
+    }
+
+    // ==================== SHEET ====================
+    function showSheet(isComplete = false) {
+      state.sheetOpen = true;
+      els.sheetTitle.textContent = isComplete ? 'Pack Complete!' : 'Pack Progress';
+      els.sheetValue.textContent = formatPrice(state.packValue);
+
+      els.sheetCards.innerHTML = '';
+      for (let i = 0; i < state.cards.length; i++) {
+        const mini = document.createElement('div');
+        mini.className = 'mini-card';
+        if (state.revealed[i]) {
+          const card = state.revealed[i];
+          const img = document.createElement('img');
+          img.src = getCardImageUrl(card);
+          img.alt = card.name;
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          img.onerror = () => { mini.textContent = card.name.split(' ').pop(); };
+          mini.appendChild(img);
+          if (isJordan(card)) {
+            mini.classList.add('jordan-mini');
+          } else if (card.rookie) {
+            mini.classList.add('rookie-mini');
+          }
+          mini.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showCardDetails(card);
+          });
+          mini.style.cursor = 'pointer';
+        } else {
+          mini.classList.add('empty');
+        }
+        els.sheetCards.appendChild(mini);
+      }
+
+      els.btnNewPack.style.display = isComplete ? 'block' : 'none';
+      els.btnContinue.textContent = isComplete ? 'View Cards' : 'Continue';
+
+      els.sheetBackdrop.classList.add('visible');
+      els.bottomSheet.classList.add('open');
+    }
+
+    function hideSheet() {
+      state.sheetOpen = false;
+      els.sheetBackdrop.classList.remove('visible');
+      els.bottomSheet.classList.remove('open');
+    }
+
+    function startNewPack() {
+      hideSheet();
+      state.packOpened = false;
+      state.packComplete = false;
+      state.isAnimating = false;
+
+      els.cardScreen.classList.remove('active');
+      els.packScreen.classList.add('visible');
+      els.packScreen.classList.remove('hidden');
+      els.pack.classList.remove('tearing');
+      els.progressDots.classList.remove('visible');
+      els.card.classList.remove('rookie', 'jordan');
+      els.cardValue.classList.remove('visible');
+      els.cardNext.style.visibility = 'hidden';
+      els.cardNext.classList.remove('rookie', 'jordan', 'peeking');
+      els.totalValue.classList.remove('visible');
+      els.totalAmount.textContent = '$0';
+
+      initPack();
+    }
+
+    // ==================== DETAILS ====================
+    function showCardDetails(card) {
+      state.detailsOpen = true;
+      els.detailCard.innerHTML = renderCardContent(card);
+      els.detailName.textContent = card.name;
+
+      let info = card.team || '';
+      if (card.rookie) info += ' | Rookie Card';
+      if (card.isSticker) info = 'Sticker';
+      els.detailInfo.textContent = info;
+
+      els.detailPrice.textContent = formatPrice(card.price);
+      els.cardDetails.classList.add('visible');
+    }
+
+    function hideDetails() {
+      state.detailsOpen = false;
+      els.cardDetails.classList.remove('visible');
+    }
+
+    // ==================== TOUCH ====================
+    function handleTouchStart(e) {
+      if (state.isAnimating || state.sheetOpen || state.detailsOpen) return;
+
+      const touch = e.touches[0];
+      state.touchStartX = touch.clientX;
+      state.touchStartY = touch.clientY;
+      state.touchCurrentX = touch.clientX;
+      state.touchCurrentY = touch.clientY;
+      state.touchStartTime = Date.now();
+      state.isDragging = true;
+
+      if (state.packOpened && !state.packComplete) {
+        els.card.classList.remove('deal-normal', 'deal-rookie', 'deal-jordan');
+        els.card.classList.add('dragging');
+        els.swipeHint.classList.remove('visible');
+      }
+    }
+
+    function handleTouchMove(e) {
+      if (!state.isDragging || state.isAnimating) return;
+
+      const touch = e.touches[0];
+      state.touchCurrentX = touch.clientX;
+      state.touchCurrentY = touch.clientY;
+
+      if (state.showingSplash) return;
+
+      const dx = state.touchCurrentX - state.touchStartX;
+      const dy = state.touchCurrentY - state.touchStartY;
+
+      if (!state.packOpened) {
+        if (dy < -20) {
+          const progress = Math.min(1, Math.abs(dy) / 150);
+          els.pack.style.transform = `translateY(${dy * 0.5}px) scale(${1 + progress * 0.05})`;
+        }
+      } else if (!state.packComplete && state.currentIndex < state.cards.length) {
+        const rotation = dx * 0.08;
+        els.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
+
+        const swipeDistance = Math.sqrt(dx * dx + dy * dy);
+        const progress = Math.min(1, swipeDistance / 120);
+        updateNextCardPeek(progress);
+      }
+    }
+
+    function handleTouchEnd(e) {
+      if (!state.isDragging) return;
+      state.isDragging = false;
+
+      if (state.showingSplash) {
+        const dx = state.touchCurrentX - state.touchStartX;
+        const dy = state.touchCurrentY - state.touchStartY;
+        const dt = Date.now() - state.touchStartTime;
+        if (Math.abs(dx) < 20 && Math.abs(dy) < 20 && dt < 400) {
+          dismissSplash();
+        }
+        return;
+      }
+
+      const dx = state.touchCurrentX - state.touchStartX;
+      const dy = state.touchCurrentY - state.touchStartY;
+      const dt = Date.now() - state.touchStartTime;
+      const velocity = Math.sqrt(dx * dx + dy * dy) / dt;
+      const isTap = Math.abs(dx) < 10 && Math.abs(dy) < 10 && dt < 300;
+
+      if (!state.packOpened) {
+        if (dy < -80 || (dy < -50 && velocity > 0.5)) {
+          tearOpenPack();
+        } else {
+          els.pack.style.transform = '';
+        }
+      } else if (state.packComplete) {
+        if (dy > 50) showSheet(true);
+      } else if (state.currentIndex < state.cards.length) {
+        els.card.classList.remove('dragging');
+
+        if (isTap) {
+          showCardDetails(state.cards[state.currentIndex]);
+        } else if ((dx > 60 || (dx > 30 && velocity > 0.3)) ||
+                   (dy < -60 || (dy < -30 && velocity > 0.3))) {
+          const dir = Math.abs(dx) > Math.abs(dy) ? 'right' : 'up';
+          swipeCardOut(dir);
+        } else if (dy > 80) {
+          showSheet(false);
+          resetCardPosition();
+        } else {
+          resetCardPosition();
+        }
+      }
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchmove', (e) => {
+      if (state.isDragging) e.preventDefault();
+    }, { passive: false });
+
+    els.cardDetails.addEventListener('click', hideDetails);
+    els.sheetBackdrop.addEventListener('click', hideSheet);
+    els.btnContinue.addEventListener('click', hideSheet);
+    els.btnNewPack.addEventListener('click', startNewPack);
+
+    // ==================== INIT ====================
+    initPack();
+  </script>
+</body>
+</html>
