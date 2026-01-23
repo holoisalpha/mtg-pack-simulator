@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Pack Break</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -38,6 +41,81 @@
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
+    /* Splash/intro screen */
+    .splash-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+      text-align: center;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-logo {
+      width: 85vw;
+      max-width: 360px;
+      margin-bottom: 40px;
+      filter: drop-shadow(0 4px 30px rgba(0,0,0,0.6));
+    }
+
+    .splash-description {
+      font-size: 16px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.6);
+      max-width: 320px;
+      margin-bottom: 50px;
+    }
+
+    .splash-hint {
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tap-icon {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      position: relative;
+      animation: tapPulse 2s ease-in-out infinite;
+    }
+
+    .tap-icon::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 12px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes tapPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(1.15);
+        opacity: 1;
+      }
+    }
+
     /* Pack display - full screen focus */
     .pack-screen {
       position: absolute;
@@ -47,6 +125,14 @@
       align-items: center;
       justify-content: center;
       gap: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .pack-screen.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .pack-screen.hidden {
@@ -574,12 +660,53 @@
       text-decoration: none;
       z-index: 50;
     }
+
+    /* Running total value */
+    .total-value {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .total-value.visible {
+      opacity: 1;
+    }
+
+    .total-value .label {
+      margin-right: 4px;
+    }
+
+    .total-value .amount {
+      color: #4ade80;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
   <a href="index.html" class="mode-link">← Back</a>
+  <div class="total-value" id="totalValue">
+    <span class="label">Total</span>
+    <span class="amount" id="totalAmount">$0</span>
+  </div>
 
   <div class="app">
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+      <img src="mtg-logo.png" alt="Magic: The Gathering" class="splash-logo">
+      <div class="splash-description">
+        Premiering in August 1993, Limited Edition Alpha was the first Magic: The Gathering set. The one that started it all.
+      </div>
+      <div class="splash-hint">
+        <div class="tap-icon"></div>
+        Tap to continue
+      </div>
+    </div>
+
     <!-- Pack Screen -->
     <div class="pack-screen" id="packScreen">
       <div class="pack" id="pack">
@@ -653,6 +780,7 @@
       currentIndex: 0,
       packValue: 0,
       revealed: [],
+      showingSplash: true,
       isAnimating: false,
       isDragging: false,
       packOpened: false,
@@ -670,6 +798,7 @@
 
     // ==================== ELEMENTS ====================
     const els = {
+      splashScreen: document.getElementById('splashScreen'),
       packScreen: document.getElementById('packScreen'),
       pack: document.getElementById('pack'),
       cardScreen: document.getElementById('cardScreen'),
@@ -695,7 +824,9 @@
       sheetCards: document.getElementById('sheetCards'),
       btnContinue: document.getElementById('btnContinue'),
       btnNewPack: document.getElementById('btnNewPack'),
-      screenFlash: document.getElementById('screenFlash')
+      screenFlash: document.getElementById('screenFlash'),
+      totalValue: document.getElementById('totalValue'),
+      totalAmount: document.getElementById('totalAmount')
     };
 
     // ==================== UTILITIES ====================
@@ -763,6 +894,17 @@
       }
     }
 
+    // ==================== SPLASH SCREEN ====================
+    function dismissSplash() {
+      if (!state.showingSplash) return;
+      state.showingSplash = false;
+
+      els.splashScreen.classList.add('hidden');
+      els.packScreen.classList.add('visible');
+
+      haptic('light');
+    }
+
     // ==================== PACK OPENING ====================
     function initPack() {
       state.cards = generatePack();
@@ -800,6 +942,7 @@
         els.packScreen.classList.add('hidden');
         els.cardScreen.classList.add('active');
         els.progressDots.classList.add('visible');
+        els.totalValue.classList.add('visible');
         showCard(0);
       }, 500);
     }
@@ -818,6 +961,9 @@
       state.currentIndex = index;
       state.packValue += price;
       state.revealed.push(card);
+
+      // Update running total
+      els.totalAmount.textContent = formatPrice(state.packValue);
 
       // Update card display
       els.cardImg.src = getImageUrl(card.name);
@@ -1079,12 +1225,15 @@
 
       // Reset state
       state.packOpened = false;
+      state.packComplete = false;
       state.isAnimating = false;
 
-      // Reset UI
+      // Reset UI - go back to pack screen (skip splash for subsequent packs)
       els.cardScreen.classList.remove('active');
+      els.packScreen.classList.add('visible');
       els.packScreen.classList.remove('hidden');
       els.pack.classList.remove('tearing');
+      els.pack.style.transform = '';
       els.progressDots.classList.remove('visible');
       els.card.classList.remove('rare', 'power9');
       els.cardValue.classList.remove('visible');
@@ -1094,6 +1243,8 @@
       els.cardNext.style.filter = '';
       els.btnNewPack.style.display = 'none';
       els.btnContinue.textContent = 'Continue';
+      els.totalValue.classList.remove('visible');
+      els.totalAmount.textContent = '$0';
 
       // Generate new pack
       initPack();
@@ -1114,7 +1265,10 @@
       state.detailsOpen = true;
       els.detailImg.src = getImageUrl(card.name);
       els.detailName.textContent = card.name;
-      els.detailSet.textContent = 'Alpha (LEA)';
+      // Format rarity for display
+      const rarityDisplay = card.isPowerNine ? 'Power 9' :
+        card.rarity ? card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1) : 'Common';
+      els.detailSet.textContent = rarityDisplay;
       els.detailPrice.textContent = formatPrice(card.price || getPrice(card.name, card.rarity));
       els.cardDetails.classList.add('visible');
     }
@@ -1143,12 +1297,29 @@
       }
     }
 
+    function handleSplashTouchEnd(e) {
+      if (!state.showingSplash) return;
+
+      const dx = state.touchCurrentX - state.touchStartX;
+      const dy = state.touchCurrentY - state.touchStartY;
+      const dt = Date.now() - state.touchStartTime;
+      const isTap = Math.abs(dx) < 20 && Math.abs(dy) < 20 && dt < 400;
+
+      // Only tap dismisses splash (no swipe)
+      if (isTap) {
+        dismissSplash();
+      }
+    }
+
     function handleTouchMove(e) {
       if (!state.isDragging || state.isAnimating) return;
 
       const touch = e.touches[0];
       state.touchCurrentX = touch.clientX;
       state.touchCurrentY = touch.clientY;
+
+      // Don't do anything while splash is showing
+      if (state.showingSplash) return;
 
       const dx = state.touchCurrentX - state.touchStartX;
       const dy = state.touchCurrentY - state.touchStartY;
@@ -1185,6 +1356,12 @@
     function handleTouchEnd(e) {
       if (!state.isDragging) return;
       state.isDragging = false;
+
+      // Handle splash screen separately
+      if (state.showingSplash) {
+        handleSplashTouchEnd(e);
+        return;
+      }
 
       const dx = state.touchCurrentX - state.touchStartX;
       const dy = state.touchCurrentY - state.touchStartY;
