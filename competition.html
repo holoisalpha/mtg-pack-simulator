@@ -29,7 +29,7 @@
       grid-template-columns: 1fr 1fr;
       gap: var(--space-lg);
       align-items: start;
-      margin-bottom: var(--space-lg);
+      margin-bottom: var(--space-xs);
     }
 
     .competition-info {
@@ -104,13 +104,57 @@
     #revealContainer .main-card-area {
       width: 180px;
       height: 252px;
+      overflow: visible;
+      position: relative;
+      z-index: 10;
     }
 
-    #revealContainer .main-card-area img {
+    #revealContainer .main-card-area img,
+    #revealContainer .main-card-area .card-img,
+    #revealContainer .main-card-area .card-front {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: var(--radius-lg);
+      border-radius: 12px;
+      border: none !important;
+      background: transparent;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+
+    /* Only zoom when pack is complete */
+    #revealContainer .main-card-area.can-zoom {
+      cursor: pointer;
+    }
+
+    /* Dark overlay behind enlarged card */
+    #revealContainer .main-card-area.can-zoom:has(img:hover)::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 999;
+    }
+
+    #revealContainer .main-card-area.can-zoom img:hover {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      height: 85vh !important;
+      width: auto !important;
+      z-index: 1000 !important;
+      background-color: #000 !important;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      object-fit: fill !important;
+      clip-path: inset(2% round 3%) !important;
     }
 
     #revealContainer .card-info {
@@ -149,8 +193,8 @@
       font-family: 'Cinzel', serif;
       font-size: 1rem;
       color: var(--color-gold);
-      margin-top: var(--space-lg);
-      margin-bottom: var(--space-sm);
+      margin-top: var(--space-xs);
+      margin-bottom: var(--space-xs);
     }
 
     .pack-value-header span {
@@ -164,12 +208,12 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: var(--space-sm);
-      margin-top: var(--space-md);
-      padding: var(--space-md);
+      margin-top: 0;
+      padding: var(--space-sm);
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      min-height: 90px;
+      min-height: 80px;
     }
 
     .revealed-row .mini-card {
@@ -235,17 +279,72 @@
     /* Responsive */
     @media (max-width: 640px) {
       .competition-main {
-        grid-template-columns: 1fr;
-        gap: var(--space-md);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: var(--space-sm);
       }
 
-      .competition-pack-area {
-        order: -1;
+      .competition-info {
+        display: contents;
+      }
+
+      .competition-set-box {
+        padding: var(--space-sm);
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .competition-reveal-area {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      /* Button spans full width below both columns */
+      .competition-open-btn {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        padding: var(--space-md);
+        font-size: 1rem;
+        width: 100%;
+      }
+
+      .competition-set-box .set-name {
+        font-size: 1rem;
+      }
+
+      .competition-set-box .set-details {
+        font-size: 0.75rem;
+      }
+
+      /* Hide extended description on mobile */
+      .mobile-hide {
+        display: none;
       }
 
       .competition-pack-area .booster-pack {
-        width: 160px;
-        height: 224px;
+        width: auto;
+        height: 100%;
+        aspect-ratio: 5/7;
+      }
+
+      .competition-reveal-area {
+        display: flex;
+        align-items: stretch;
+      }
+
+      .competition-pack-area {
+        height: 100%;
+      }
+
+      #revealContainer .main-card-area {
+        width: 120px;
+        height: 168px;
+      }
+
+      /* Hide the separate hint on mobile - it's on the button instead */
+      #competitionHint {
+        display: none;
       }
 
       .revealed-row .mini-card {
@@ -270,7 +369,7 @@
       <div class="competition-info">
         <div class="competition-set-box">
           <div class="set-name" id="competitionSetName">Alpha Booster Pack</div>
-          <div class="set-details" id="competitionSetDetails">Premiering in August 1993 as the first Magic: The Gathering set, Limited Edition Alpha was the set that started it all. It had 295 cards and a mere 2.6 million print run. The revised, black-bordered, 302-card Limited Edition Beta set sold out quickly later that year, immediately followed by the Unlimited Edition white-bordered set of the same 302 cards.</div>
+          <div class="set-details" id="competitionSetDetails">Premiering in August 1993 as the first Magic: The Gathering set, Limited Edition Alpha was the set that started it all. It had 295 cards and a mere 2.6 million print run.<span class="mobile-hide"> The revised, black-bordered, 302-card Limited Edition Beta set sold out quickly later that year, immediately followed by the Unlimited Edition white-bordered set of the same 302 cards.</span></div>
         </div>
         <button class="competition-open-btn" id="competitionOpenBtn">Open Pack</button>
       </div>
@@ -458,14 +557,37 @@
   <script>
     // Competition mode: Use original game logic but add hover-to-view on revealed cards
 
+    // Check if we're on mobile
+    function isMobile() {
+      return window.innerWidth <= 640;
+    }
+
+    // Track if pack is currently being revealed
+    let packRevealing = false;
+
     function competitionOpenPack() {
       // Reset pack complete flag
       packComplete = false;
+      lastCardHtml = '';
+
+      // Reset hint text to default
+      const hintText = document.getElementById('hintText');
+      if (hintText) {
+        hintText.textContent = '0 of 15';
+        if (hintText.nextSibling) {
+          hintText.nextSibling.textContent = ' · Tap for next card';
+        }
+      }
+
+      // Disable zoom until pack complete
+      document.getElementById('mainCardArea').classList.remove('can-zoom');
+
       // Trigger original pack opening (generates the pack)
       document.getElementById('openBtn').click();
       // Then open the booster pack animation/reveal
       setTimeout(function() {
         openBoosterPack();
+        packRevealing = true;
         updateCardHint();
         // Show pack value header
         document.getElementById('packValueHeader').style.display = 'block';
@@ -473,6 +595,16 @@
         startPackValueSync();
       }, 100);
     }
+
+    // Handle button click - either open pack or advance card on mobile
+    document.getElementById('competitionOpenBtn').onclick = function() {
+      if (packRevealing && isMobile()) {
+        // Advance to next card by simulating click on main card area
+        document.getElementById('mainCardArea').click();
+      } else {
+        competitionOpenPack();
+      }
+    };
 
     // Sync pack value display with the one game-logic.js updates
     let packValueSyncInterval;
@@ -488,8 +620,6 @@
         }
       }, 100);
     }
-
-    document.getElementById('competitionOpenBtn').onclick = competitionOpenPack;
 
     // Track if pack is complete to prevent main card from changing
     let packComplete = false;
@@ -542,22 +672,44 @@
       const currentEl = document.getElementById('currentCard');
       const totalEl = document.getElementById('totalCards');
       const hintText = document.getElementById('hintText');
-
-      if (!hintText) return;
+      const btn = document.getElementById('competitionOpenBtn');
 
       const current = parseInt(currentEl?.textContent) || 0;
       const total = parseInt(totalEl?.textContent) || 15;
       const remaining = total - current;
 
+      let countText, actionText;
+
       if (remaining <= 0) {
-        hintText.textContent = 'Pack complete!';
-        // Change the trailing text
-        hintText.nextSibling.textContent = ' Hover to view cards';
+        countText = 'Pack complete!';
+        actionText = ' Hover to view cards';
         packComplete = true;
+        packRevealing = false;
+        // Enable zoom on main card
+        document.getElementById('mainCardArea').classList.add('can-zoom');
+        // Reset button on mobile
+        if (isMobile() && btn) {
+          btn.textContent = 'Open Pack';
+        }
       } else if (remaining <= 3) {
-        hintText.textContent = remaining + ' left';
+        countText = remaining + ' left';
+        actionText = ' · Tap for next card';
       } else {
-        hintText.textContent = current + ' of ' + total;
+        countText = current + ' of ' + total;
+        actionText = ' · Tap for next card';
+      }
+
+      // Update desktop hint
+      if (hintText) {
+        hintText.textContent = countText;
+        if (hintText.nextSibling) {
+          hintText.nextSibling.textContent = actionText;
+        }
+      }
+
+      // Update mobile button text
+      if (isMobile() && btn && packRevealing) {
+        btn.textContent = countText + actionText;
       }
     }
 
@@ -590,7 +742,7 @@
 
       if (competitionGameMode === 'mtg') {
         setName.textContent = 'Alpha Booster Pack';
-        setDetails.textContent = 'Premiering in August 1993 as the first Magic: The Gathering set, Limited Edition Alpha was the set that started it all. It had 295 cards and a mere 2.6 million print run. The revised, black-bordered, 302-card Limited Edition Beta set sold out quickly later that year, immediately followed by the Unlimited Edition white-bordered set of the same 302 cards.';
+        setDetails.innerHTML = 'Premiering in August 1993 as the first Magic: The Gathering set, Limited Edition Alpha was the set that started it all. It had 295 cards and a mere 2.6 million print run.<span class="mobile-hide"> The revised, black-bordered, 302-card Limited Edition Beta set sold out quickly later that year, immediately followed by the Unlimited Edition white-bordered set of the same 302 cards.</span>';
         packImage.src = 'booster-pack-art.png';
         logo.src = 'mtg-logo.png';
         // Set for game logic
@@ -598,7 +750,7 @@
         if (typeof gameMode !== 'undefined') gameMode = 'mtg';
       } else {
         setName.textContent = '1st Edition Booster Pack';
-        setDetails.textContent = 'Released in January 1999, the Base Set was the first English Pokemon TCG set. The 1st Edition print run was extremely limited, making these cards highly sought after by collectors worldwide.';
+        setDetails.innerHTML = 'Released in January 1999, the Base Set was the first English Pokemon TCG set.<span class="mobile-hide"> The 1st Edition print run was extremely limited, making these cards highly sought after by collectors worldwide.</span>';
         packImage.src = 'pokemon-pack-charizard.jpg';
         logo.src = 'pokemon-logo.png';
         // Set for game logic
@@ -622,10 +774,7 @@
       const newImg = document.createElement('img');
       newImg.src = img.src;
       newImg.alt = img.alt;
-      newImg.style.width = '100%';
-      newImg.style.height = '100%';
-      newImg.style.objectFit = 'cover';
-      newImg.style.borderRadius = 'var(--radius-lg)';
+      // Let CSS handle all styling
       mainArea.appendChild(newImg);
 
       // Update card counter
@@ -671,12 +820,12 @@
 
       if (isMtg) {
         setName.textContent = 'Alpha Booster Pack';
-        setDetails.textContent = 'Premiering in August 1993 as the first Magic: The Gathering set, Limited Edition Alpha was the set that started it all. It had 295 cards and a mere 2.6 million print run. The revised, black-bordered, 302-card Limited Edition Beta set sold out quickly later that year, immediately followed by the Unlimited Edition white-bordered set of the same 302 cards.';
+        setDetails.innerHTML = 'Premiering in August 1993 as the first Magic: The Gathering set, Limited Edition Alpha was the set that started it all. It had 295 cards and a mere 2.6 million print run.<span class="mobile-hide"> The revised, black-bordered, 302-card Limited Edition Beta set sold out quickly later that year, immediately followed by the Unlimited Edition white-bordered set of the same 302 cards.</span>';
         packImage.src = 'booster-pack-art.png';
         logo.src = 'mtg-logo.png';
       } else {
         setName.textContent = '1st Edition Booster Pack';
-        setDetails.textContent = 'Released in January 1999, the Base Set was the first English Pokemon TCG set. The 1st Edition print run was extremely limited, making these cards highly sought after by collectors worldwide.';
+        setDetails.innerHTML = 'Released in January 1999, the Base Set was the first English Pokemon TCG set.<span class="mobile-hide"> The 1st Edition print run was extremely limited, making these cards highly sought after by collectors worldwide.</span>';
         packImage.src = 'pokemon-pack-charizard.jpg';
         logo.src = 'pokemon-logo.png';
       }
