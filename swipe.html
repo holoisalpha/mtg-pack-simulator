@@ -610,8 +610,13 @@
     }
 
     .mini-card.empty {
-      border: 1px dashed rgba(255,255,255,0.15);
-      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .mini-card.empty:active {
+      background: rgba(255,255,255,0.15);
+      transform: scale(0.95);
     }
 
     .mini-card.rare-mini {
@@ -1516,6 +1521,22 @@
       els.sheetValue.textContent = formatPrice(state.packValue);
 
       // Build mini cards grid
+      renderSheetCards();
+
+      // Show/hide buttons
+      if (isComplete) {
+        els.btnNewPack.style.display = 'block';
+        els.btnContinue.textContent = 'View Cards';
+      } else {
+        els.btnNewPack.style.display = 'none';
+        els.btnContinue.textContent = 'Continue';
+      }
+
+      els.sheetBackdrop.classList.add('visible');
+      els.bottomSheet.classList.add('open');
+    }
+
+    function renderSheetCards() {
       els.sheetCards.innerHTML = '';
       for (let i = 0; i < state.cards.length; i++) {
         const mini = document.createElement('div');
@@ -1537,21 +1558,63 @@
           mini.style.cursor = 'pointer';
         } else {
           mini.classList.add('empty');
+          // Tap empty slot to speed reveal
+          mini.addEventListener('click', (e) => {
+            e.stopPropagation();
+            revealNextFromSheet();
+          });
+          mini.style.cursor = 'pointer';
         }
         els.sheetCards.appendChild(mini);
       }
+    }
 
-      // Show/hide buttons
-      if (isComplete) {
-        els.btnNewPack.style.display = 'block';
-        els.btnContinue.textContent = 'View Cards';
+    function revealNextFromSheet() {
+      const nextIndex = state.revealed.length;
+      if (nextIndex >= state.cards.length) return;
+
+      // Reveal the next card
+      const card = state.cards[nextIndex];
+      const price = getPrice(card.name, card.rarity);
+      card.price = price;
+
+      state.currentIndex = nextIndex;
+      state.packValue += price;
+      state.revealed.push(card);
+
+      // Update totals
+      els.totalAmount.textContent = formatPrice(state.packValue);
+      els.sheetValue.textContent = formatPrice(state.packValue);
+
+      // Haptic feedback
+      const config = GAME_CONFIG[state.gameMode];
+      const isChase = card[config.chaseKey] || card.isChase;
+      if (isChase) {
+        haptic('power9');
+      } else if (card.rarity === 'rare' || card.rarity === 'holo') {
+        haptic('heavy');
       } else {
-        els.btnNewPack.style.display = 'none';
-        els.btnContinue.textContent = 'Continue';
+        haptic('light');
       }
 
-      els.sheetBackdrop.classList.add('visible');
-      els.bottomSheet.classList.add('open');
+      // Re-render the grid
+      renderSheetCards();
+
+      // Update progress dots
+      updateProgressDots(nextIndex);
+
+      // Also update the main card display for when they go back
+      els.cardImg.src = getImageUrl(card);
+      els.cardValue.textContent = formatPrice(price);
+      preloadNextCard(nextIndex + 1);
+
+      // Check if pack complete
+      if (state.revealed.length >= state.cards.length) {
+        state.packComplete = true;
+        els.sheetTitle.textContent = 'Pack Complete!';
+        els.btnNewPack.style.display = 'block';
+        els.btnContinue.textContent = 'View Cards';
+      }
     }
 
     function hideSheet() {
