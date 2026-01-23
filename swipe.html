@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Pack Break</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎴</text></svg>">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      height: 100dvh;
+      touch-action: none;
+    }
+
+    /* Full-screen app container */
+    .app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    /* Pack display - full screen focus */
+    .pack-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .pack-screen.hidden {
+      display: none;
+    }
+
+    .pack {
+      width: 75vw;
+      max-width: 300px;
+      aspect-ratio: 5/7;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+      transition: transform 0.2s ease;
+      will-change: transform;
+    }
+
+    .pack img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .pack-hint {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+    }
+
+    .pack-hint .arrow {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 8px;
+      animation: bounceUp 1.5s ease-in-out infinite;
+    }
+
+    @keyframes bounceUp {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    /* Pack tear animation */
+    @keyframes packTear {
+      0% {
+        clip-path: inset(0 0 0 0);
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      30% {
+        clip-path: inset(0 0 30% 0);
+        transform: scale(1.05) translateY(-15px);
+        filter: brightness(1.3);
+      }
+      100% {
+        clip-path: inset(0 0 100% 0);
+        transform: scale(1.1) translateY(-40px);
+        opacity: 0;
+      }
+    }
+
+    .pack.tearing {
+      animation: packTear 0.5s ease-out forwards;
+    }
+
+    /* Card area */
+    .card-screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-screen.active {
+      display: flex;
+    }
+
+    /* The main swipeable card */
+    .card-wrapper {
+      position: relative;
+      width: 85vw;
+      max-width: 380px;
+      aspect-ratio: 5/7;
+    }
+
+    .card {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #1a1a1a;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+      will-change: transform;
+    }
+
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .card.dragging {
+      transition: none !important;
+    }
+
+    /* Card value overlay - subtle on card */
+    .card-value {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #4ade80;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card-value.visible {
+      opacity: 1;
+    }
+
+    /* Rarity glow */
+    .card.rare {
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.4), 0 15px 50px rgba(0,0,0,0.5);
+    }
+
+    .card.power9 {
+      box-shadow: 0 0 80px rgba(147, 51, 234, 0.5), 0 0 120px rgba(255, 215, 0, 0.3);
+    }
+
+    /* Card animations */
+    @keyframes cardDeal {
+      0% {
+        transform: scale(0.5) translateY(100px) rotate(10deg);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.05) translateY(-10px) rotate(-2deg);
+      }
+      100% {
+        transform: scale(1) translateY(0) rotate(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes rareDeal {
+      0% {
+        transform: scale(0.3) rotateY(180deg);
+        opacity: 0;
+        filter: brightness(2);
+      }
+      50% {
+        transform: scale(1.1) rotateY(0);
+        filter: brightness(1.5);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1);
+      }
+    }
+
+    @keyframes power9Deal {
+      0% {
+        transform: scale(0.1) rotateY(360deg) rotateX(20deg);
+        opacity: 0;
+        filter: brightness(3) saturate(2);
+      }
+      40% {
+        transform: scale(1.2) rotateY(0) rotateX(0);
+        filter: brightness(2) saturate(1.5);
+      }
+      70% {
+        transform: scale(0.95);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+        filter: brightness(1) saturate(1);
+      }
+    }
+
+    .card.deal-normal {
+      animation: cardDeal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .card.deal-rare {
+      animation: rareDeal 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .card.deal-power9 {
+      animation: power9Deal 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes swipeOut {
+      to {
+        transform: var(--swipe-transform);
+        opacity: 0;
+      }
+    }
+
+    .card.swipe-out {
+      animation: swipeOut 0.25s ease-out forwards;
+    }
+
+    /* Progress dots */
+    .progress-dots {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .progress-dots.visible {
+      opacity: 1;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transition: all 0.2s ease;
+    }
+
+    .dot.revealed {
+      background: var(--color-gold, #d4af37);
+    }
+
+    .dot.current {
+      background: #fff;
+      transform: scale(1.4);
+    }
+
+    .dot.rare-dot {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+    }
+
+    /* Swipe direction indicators */
+    .swipe-indicator {
+      position: fixed;
+      font-size: 32px;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .swipe-indicator.right { right: 16px; top: 50%; transform: translateY(-50%); }
+    .swipe-indicator.up { top: 80px; left: 50%; transform: translateX(-50%); }
+    .swipe-indicator.down { bottom: 100px; left: 50%; transform: translateX(-50%); }
+    .swipe-indicator.visible { opacity: 0.6; }
+
+    /* Bottom sheet */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+
+    .sheet-backdrop.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 75vh;
+      background: #1a1a1a;
+      border-radius: 24px 24px 0 0;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 101;
+      overflow: hidden;
+    }
+
+    .bottom-sheet.open {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      margin: 12px auto;
+    }
+
+    .sheet-content {
+      padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+      max-height: calc(75vh - 30px);
+      overflow-y: auto;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .sheet-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sheet-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #4ade80;
+    }
+
+    .sheet-cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .mini-card {
+      aspect-ratio: 5/7;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #2a2a2a;
+    }
+
+    .mini-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mini-card.empty {
+      border: 1px dashed rgba(255,255,255,0.15);
+      background: transparent;
+    }
+
+    .mini-card.rare-mini {
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .sheet-btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .sheet-btn:active {
+      transform: scale(0.97);
+    }
+
+    .sheet-btn.primary {
+      background: linear-gradient(135deg, #d4af37, #b8960c);
+      color: #000;
+    }
+
+    .sheet-btn.secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    /* Card details overlay */
+    .card-details {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 200;
+    }
+
+    .card-details.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card-details img {
+      max-height: 55vh;
+      max-width: 90vw;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .detail-set {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 12px;
+    }
+
+    .detail-price {
+      font-size: 32px;
+      font-weight: 800;
+      color: #4ade80;
+    }
+
+    .detail-hint {
+      position: absolute;
+      bottom: max(30px, env(safe-area-inset-bottom));
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* Screen flash effects */
+    .screen-flash {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 500;
+    }
+
+    .screen-flash.rare-flash {
+      background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, transparent 70%);
+      animation: flash 0.5s ease-out forwards;
+    }
+
+    .screen-flash.power9-flash {
+      background: radial-gradient(circle, rgba(147,51,234,0.5) 0%, rgba(255,215,0,0.3) 40%, transparent 70%);
+      animation: flash 0.8s ease-out forwards;
+    }
+
+    @keyframes flash {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Link back */
+    .mode-link {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      left: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="mode-link">← Back</a>
+
+  <div class="app">
+    <!-- Pack Screen -->
+    <div class="pack-screen" id="packScreen">
+      <div class="pack" id="pack">
+        <img src="booster-pack-art.png" alt="Booster Pack" id="packImage">
+      </div>
+      <div class="pack-hint">
+        <span class="arrow">↑</span>
+        Swipe up to open
+      </div>
+    </div>
+
+    <!-- Card Screen -->
+    <div class="card-screen" id="cardScreen">
+      <div class="card-wrapper" id="cardWrapper">
+        <div class="card" id="card">
+          <img src="" alt="Card" id="cardImg">
+          <div class="card-value" id="cardValue">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Swipe indicators -->
+    <div class="swipe-indicator right" id="indRight">→</div>
+    <div class="swipe-indicator up" id="indUp">↑</div>
+    <div class="swipe-indicator down" id="indDown">↓</div>
+
+    <!-- Progress dots -->
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <!-- Card details overlay -->
+  <div class="card-details" id="cardDetails">
+    <img src="" alt="" id="detailImg">
+    <div class="detail-name" id="detailName">Card Name</div>
+    <div class="detail-set" id="detailSet">Alpha</div>
+    <div class="detail-price" id="detailPrice">$0</div>
+    <div class="detail-hint">Tap to dismiss</div>
+  </div>
+
+  <!-- Bottom sheet -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <div class="sheet-title" id="sheetTitle">Pack Progress</div>
+        <div class="sheet-value" id="sheetValue">$0</div>
+      </div>
+      <div class="sheet-cards" id="sheetCards"></div>
+      <div class="sheet-actions">
+        <button class="sheet-btn secondary" id="btnContinue">Continue</button>
+        <button class="sheet-btn primary" id="btnNewPack" style="display:none;">New Pack</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen flash -->
+  <div class="screen-flash" id="screenFlash"></div>
+
+  <script src="card-data.js"></script>
+  <script src="price-data.js?v=20260122"></script>
+  <script>
+    // ==================== STATE ====================
+    const state = {
+      cards: [],
+      currentIndex: 0,
+      packValue: 0,
+      revealed: [],
+      isAnimating: false,
+      isDragging: false,
+      packOpened: false,
+      sheetOpen: false,
+      detailsOpen: false,
+      touchStartX: 0,
+      touchStartY: 0,
+      touchCurrentX: 0,
+      touchCurrentY: 0,
+      touchStartTime: 0
+    };
+
+    const setCode = 'lea';
+
+    // ==================== ELEMENTS ====================
+    const els = {
+      packScreen: document.getElementById('packScreen'),
+      pack: document.getElementById('pack'),
+      cardScreen: document.getElementById('cardScreen'),
+      cardWrapper: document.getElementById('cardWrapper'),
+      card: document.getElementById('card'),
+      cardImg: document.getElementById('cardImg'),
+      cardValue: document.getElementById('cardValue'),
+      progressDots: document.getElementById('progressDots'),
+      indRight: document.getElementById('indRight'),
+      indUp: document.getElementById('indUp'),
+      indDown: document.getElementById('indDown'),
+      cardDetails: document.getElementById('cardDetails'),
+      detailImg: document.getElementById('detailImg'),
+      detailName: document.getElementById('detailName'),
+      detailSet: document.getElementById('detailSet'),
+      detailPrice: document.getElementById('detailPrice'),
+      sheetBackdrop: document.getElementById('sheetBackdrop'),
+      bottomSheet: document.getElementById('bottomSheet'),
+      sheetTitle: document.getElementById('sheetTitle'),
+      sheetValue: document.getElementById('sheetValue'),
+      sheetCards: document.getElementById('sheetCards'),
+      btnContinue: document.getElementById('btnContinue'),
+      btnNewPack: document.getElementById('btnNewPack'),
+      screenFlash: document.getElementById('screenFlash')
+    };
+
+    // ==================== UTILITIES ====================
+    function pickRandom(arr, count) {
+      const result = [];
+      const used = new Set();
+      while (result.length < count && used.size < arr.length) {
+        const i = Math.floor(Math.random() * arr.length);
+        if (!used.has(i)) {
+          used.add(i);
+          result.push({...arr[i]});
+        }
+      }
+      return result;
+    }
+
+    function generatePack() {
+      const pool = ALPHA_CARDS;
+      if (!pool) return [];
+
+      const commons = pickRandom(pool.commons, 11);
+      commons.forEach(c => c.rarity = 'common');
+
+      const uncommons = pickRandom(pool.uncommons, 3);
+      uncommons.forEach(c => c.rarity = 'uncommon');
+
+      const rare = pickRandom(pool.rares, 1)[0];
+      rare.rarity = 'rare';
+
+      return [...commons, ...uncommons, rare];
+    }
+
+    function getPrice(cardName) {
+      if (typeof getCardPrice === 'function') {
+        const p = getCardPrice(cardName, setCode);
+        if (p !== null) return p;
+      }
+      return 5;
+    }
+
+    function formatPrice(price) {
+      if (price >= 1000) return '$' + (price / 1000).toFixed(1) + 'k';
+      if (price >= 1) return '$' + price.toFixed(0);
+      return '$' + price.toFixed(2);
+    }
+
+    function getImageUrl(cardName) {
+      return `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(cardName)}&set=${setCode}&format=image&version=normal`;
+    }
+
+    function haptic(type) {
+      if (!navigator.vibrate) return;
+      switch (type) {
+        case 'light': navigator.vibrate(10); break;
+        case 'medium': navigator.vibrate([30, 20, 50]); break;
+        case 'heavy': navigator.vibrate([50, 30, 100]); break;
+        case 'power9': navigator.vibrate([100, 50, 100, 50, 200]); break;
+      }
+    }
+
+    // ==================== PACK OPENING ====================
+    function initPack() {
+      state.cards = generatePack();
+      state.currentIndex = 0;
+      state.packValue = 0;
+      state.revealed = [];
+      state.packOpened = false;
+      createProgressDots();
+    }
+
+    function createProgressDots() {
+      els.progressDots.innerHTML = '';
+      state.cards.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        if (i === state.cards.length - 1) dot.classList.add('rare-dot');
+        els.progressDots.appendChild(dot);
+      });
+    }
+
+    function tearOpenPack() {
+      if (state.isAnimating) return;
+      state.isAnimating = true;
+      haptic('medium');
+
+      els.pack.classList.add('tearing');
+
+      setTimeout(() => {
+        state.packOpened = true;
+        els.packScreen.classList.add('hidden');
+        els.cardScreen.classList.add('active');
+        els.progressDots.classList.add('visible');
+        showCard(0);
+      }, 500);
+    }
+
+    // ==================== CARD DISPLAY ====================
+    function showCard(index) {
+      if (index >= state.cards.length) {
+        finishPack();
+        return;
+      }
+
+      const card = state.cards[index];
+      const price = getPrice(card.name);
+      card.price = price;
+
+      state.currentIndex = index;
+      state.packValue += price;
+      state.revealed.push(card);
+
+      // Update card display
+      els.cardImg.src = getImageUrl(card.name);
+      els.cardValue.textContent = formatPrice(price);
+
+      // Determine animation type
+      const isPower9 = card.isPowerNine;
+      const isRare = card.rarity === 'rare';
+      const isLastCard = index === state.cards.length - 1;
+
+      // Apply rarity class
+      els.card.classList.remove('rare', 'power9', 'deal-normal', 'deal-rare', 'deal-power9', 'swipe-out');
+      if (isPower9) {
+        els.card.classList.add('power9');
+      } else if (isRare) {
+        els.card.classList.add('rare');
+      }
+
+      // Animate in
+      requestAnimationFrame(() => {
+        if (isPower9) {
+          els.card.classList.add('deal-power9');
+          flashScreen('power9');
+          haptic('power9');
+        } else if (isRare || isLastCard) {
+          els.card.classList.add('deal-rare');
+          flashScreen('rare');
+          haptic('heavy');
+        } else {
+          els.card.classList.add('deal-normal');
+          haptic('light');
+        }
+      });
+
+      // Show value after animation
+      const delay = isPower9 ? 1000 : isRare ? 700 : 400;
+      setTimeout(() => {
+        els.cardValue.classList.add('visible');
+        state.isAnimating = false;
+      }, delay);
+
+      updateProgressDots(index);
+    }
+
+    function updateProgressDots(currentIdx) {
+      const dots = els.progressDots.querySelectorAll('.dot');
+      dots.forEach((dot, i) => {
+        dot.classList.remove('current', 'revealed');
+        if (i < currentIdx) dot.classList.add('revealed');
+        else if (i === currentIdx) dot.classList.add('current');
+      });
+    }
+
+    function swipeCardOut(direction) {
+      state.isAnimating = true;
+      els.cardValue.classList.remove('visible');
+
+      // Set swipe direction
+      let transform;
+      if (direction === 'up') {
+        transform = 'translateY(-120vh) rotate(5deg)';
+      } else {
+        transform = 'translateX(-120vw) rotate(-15deg)';
+      }
+
+      els.card.style.setProperty('--swipe-transform', transform);
+      els.card.classList.add('swipe-out');
+
+      setTimeout(() => {
+        els.card.classList.remove('swipe-out');
+        els.card.style.transform = '';
+        showCard(state.currentIndex + 1);
+      }, 250);
+    }
+
+    function flashScreen(type) {
+      els.screenFlash.className = 'screen-flash ' + type + '-flash';
+      setTimeout(() => {
+        els.screenFlash.className = 'screen-flash';
+      }, type === 'power9' ? 800 : 500);
+    }
+
+    function finishPack() {
+      // Mark all dots revealed
+      const dots = els.progressDots.querySelectorAll('.dot');
+      dots.forEach(dot => {
+        dot.classList.remove('current');
+        dot.classList.add('revealed');
+      });
+
+      setTimeout(() => {
+        showSheet(true);
+      }, 300);
+    }
+
+    // ==================== BOTTOM SHEET ====================
+    function showSheet(isComplete = false) {
+      state.sheetOpen = true;
+
+      // Update content
+      els.sheetTitle.textContent = isComplete ? 'Pack Complete!' : 'Pack Progress';
+      els.sheetValue.textContent = formatPrice(state.packValue);
+
+      // Build mini cards grid
+      els.sheetCards.innerHTML = '';
+      for (let i = 0; i < state.cards.length; i++) {
+        const mini = document.createElement('div');
+        mini.className = 'mini-card';
+        if (state.revealed[i]) {
+          const img = document.createElement('img');
+          img.src = getImageUrl(state.revealed[i].name);
+          mini.appendChild(img);
+          if (state.revealed[i].rarity === 'rare' || state.revealed[i].isPowerNine) {
+            mini.classList.add('rare-mini');
+          }
+        } else {
+          mini.classList.add('empty');
+        }
+        els.sheetCards.appendChild(mini);
+      }
+
+      // Show/hide buttons
+      if (isComplete) {
+        els.btnNewPack.style.display = 'block';
+        els.btnContinue.textContent = 'View Cards';
+      } else {
+        els.btnNewPack.style.display = 'none';
+        els.btnContinue.textContent = 'Continue';
+      }
+
+      els.sheetBackdrop.classList.add('visible');
+      els.bottomSheet.classList.add('open');
+    }
+
+    function hideSheet() {
+      state.sheetOpen = false;
+      els.sheetBackdrop.classList.remove('visible');
+      els.bottomSheet.classList.remove('open');
+    }
+
+    function startNewPack() {
+      hideSheet();
+
+      // Reset state
+      state.packOpened = false;
+      state.isAnimating = false;
+
+      // Reset UI
+      els.cardScreen.classList.remove('active');
+      els.packScreen.classList.remove('hidden');
+      els.pack.classList.remove('tearing');
+      els.progressDots.classList.remove('visible');
+      els.card.classList.remove('rare', 'power9');
+      els.cardValue.classList.remove('visible');
+      els.btnNewPack.style.display = 'none';
+      els.btnContinue.textContent = 'Continue';
+
+      // Generate new pack
+      initPack();
+    }
+
+    // ==================== CARD DETAILS ====================
+    function showDetails() {
+      if (state.currentIndex >= state.cards.length) return;
+      const card = state.cards[state.currentIndex];
+
+      state.detailsOpen = true;
+      els.detailImg.src = getImageUrl(card.name);
+      els.detailName.textContent = card.name;
+      els.detailSet.textContent = 'Alpha (LEA)';
+      els.detailPrice.textContent = formatPrice(card.price || getPrice(card.name));
+      els.cardDetails.classList.add('visible');
+    }
+
+    function hideDetails() {
+      state.detailsOpen = false;
+      els.cardDetails.classList.remove('visible');
+    }
+
+    // ==================== TOUCH HANDLING ====================
+    function handleTouchStart(e) {
+      if (state.isAnimating || state.sheetOpen || state.detailsOpen) return;
+
+      const touch = e.touches[0];
+      state.touchStartX = touch.clientX;
+      state.touchStartY = touch.clientY;
+      state.touchCurrentX = touch.clientX;
+      state.touchCurrentY = touch.clientY;
+      state.touchStartTime = Date.now();
+      state.isDragging = true;
+
+      if (state.packOpened) {
+        els.card.classList.add('dragging');
+      }
+    }
+
+    function handleTouchMove(e) {
+      if (!state.isDragging || state.isAnimating) return;
+
+      const touch = e.touches[0];
+      state.touchCurrentX = touch.clientX;
+      state.touchCurrentY = touch.clientY;
+
+      const dx = state.touchCurrentX - state.touchStartX;
+      const dy = state.touchCurrentY - state.touchStartY;
+
+      if (!state.packOpened) {
+        // Pack drag - only respond to up swipe
+        if (dy < -20) {
+          const progress = Math.min(1, Math.abs(dy) / 150);
+          els.pack.style.transform = `translateY(${dy * 0.5}px) scale(${1 + progress * 0.05})`;
+        }
+      } else if (state.currentIndex < state.cards.length) {
+        // Card drag
+        const rotation = dx * 0.08;
+        els.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
+
+        // Show indicators
+        els.indRight.classList.toggle('visible', dx > 50);
+        els.indUp.classList.toggle('visible', dy < -50);
+        els.indDown.classList.toggle('visible', dy > 60);
+      }
+    }
+
+    function handleTouchEnd(e) {
+      if (!state.isDragging) return;
+      state.isDragging = false;
+
+      const dx = state.touchCurrentX - state.touchStartX;
+      const dy = state.touchCurrentY - state.touchStartY;
+      const dt = Date.now() - state.touchStartTime;
+      const velocity = Math.sqrt(dx * dx + dy * dy) / dt;
+      const isTap = Math.abs(dx) < 10 && Math.abs(dy) < 10 && dt < 300;
+
+      // Hide indicators
+      els.indRight.classList.remove('visible');
+      els.indUp.classList.remove('visible');
+      els.indDown.classList.remove('visible');
+
+      if (!state.packOpened) {
+        // Check for pack tear
+        if (dy < -80 || (dy < -50 && velocity > 0.5)) {
+          tearOpenPack();
+        } else {
+          els.pack.style.transform = '';
+        }
+      } else if (state.currentIndex < state.cards.length) {
+        els.card.classList.remove('dragging');
+
+        if (isTap) {
+          // Tap to show details
+          showDetails();
+        } else if ((dx > 60 || (dx > 30 && velocity > 0.3)) ||
+                   (dy < -60 || (dy < -30 && velocity > 0.3))) {
+          // Swipe right or up - next card
+          const dir = Math.abs(dx) > Math.abs(dy) ? 'right' : 'up';
+          swipeCardOut(dir);
+        } else if (dy > 80) {
+          // Swipe down - show sheet
+          showSheet(false);
+          els.card.style.transform = '';
+        } else {
+          // Reset
+          els.card.style.transition = 'transform 0.2s ease';
+          els.card.style.transform = '';
+          setTimeout(() => els.card.style.transition = '', 200);
+        }
+      } else {
+        // Pack complete - swipe down for sheet
+        if (dy > 50) {
+          showSheet(true);
+        }
+      }
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd);
+
+    // Prevent default behaviors
+    document.addEventListener('touchmove', (e) => {
+      if (state.isDragging) e.preventDefault();
+    }, { passive: false });
+
+    // Card details dismiss
+    els.cardDetails.addEventListener('click', hideDetails);
+
+    // Sheet interactions
+    els.sheetBackdrop.addEventListener('click', hideSheet);
+    els.btnContinue.addEventListener('click', hideSheet);
+    els.btnNewPack.addEventListener('click', startNewPack);
+
+    // ==================== INIT ====================
+    initPack();
+  </script>
+</body>
+</html>
