@@ -685,6 +685,49 @@
       color: #4ade80;
       font-weight: 600;
     }
+
+    /* First card swipe hint */
+    .swipe-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .swipe-hint.visible {
+      opacity: 1;
+    }
+
+    .swipe-hint .hint-arrow {
+      font-size: 36px;
+      color: rgba(255,255,255,0.8);
+      animation: swipeUpHint 1.2s ease-in-out infinite;
+    }
+
+    .swipe-hint .hint-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 12px;
+    }
+
+    @keyframes swipeUpHint {
+      0%, 100% {
+        transform: translateY(10px);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translateY(-10px);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -729,6 +772,10 @@
         <div class="card" id="card">
           <img src="" alt="Card" id="cardImg">
           <div class="card-value" id="cardValue">$0</div>
+          <div class="swipe-hint" id="swipeHint">
+            <span class="hint-arrow">↑</span>
+            <span class="hint-text">Swipe up to reveal</span>
+          </div>
         </div>
       </div>
     </div>
@@ -826,7 +873,8 @@
       btnNewPack: document.getElementById('btnNewPack'),
       screenFlash: document.getElementById('screenFlash'),
       totalValue: document.getElementById('totalValue'),
-      totalAmount: document.getElementById('totalAmount')
+      totalAmount: document.getElementById('totalAmount'),
+      swipeHint: document.getElementById('swipeHint')
     };
 
     // ==================== UTILITIES ====================
@@ -1019,6 +1067,11 @@
       setTimeout(() => {
         els.cardValue.classList.add('visible');
         state.isAnimating = false;
+
+        // Show swipe hint on first card only
+        if (index === 0) {
+          els.swipeHint.classList.add('visible');
+        }
       }, delay);
 
       updateProgressDots(index);
@@ -1245,6 +1298,7 @@
       els.btnContinue.textContent = 'Continue';
       els.totalValue.classList.remove('visible');
       els.totalAmount.textContent = '$0';
+      els.swipeHint.classList.remove('visible');
 
       // Generate new pack
       initPack();
@@ -1294,6 +1348,9 @@
         // Remove animation classes so drag transform works
         els.card.classList.remove('deal-normal', 'deal-rare', 'deal-power9');
         els.card.classList.add('dragging');
+
+        // Hide swipe hint when user starts interacting
+        els.swipeHint.classList.remove('visible');
       }
     }
 
@@ -1346,10 +1403,12 @@
         // Update next card peek - reveals as you swipe
         updateNextCardPeek(progress);
 
-        // Show indicators
-        els.indRight.classList.toggle('visible', dx > 50);
-        els.indUp.classList.toggle('visible', dy < -50);
-        els.indDown.classList.toggle('visible', dy > 60);
+        // Show indicators only on first card
+        if (state.currentIndex === 0) {
+          els.indRight.classList.toggle('visible', dx > 50);
+          els.indUp.classList.toggle('visible', dy < -50);
+          els.indDown.classList.toggle('visible', dy > 60);
+        }
       }
     }
 
