@@ -645,8 +645,8 @@ button:disabled {
   height: 350px;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--border-subtle);
+  background: transparent;
+  border: none;
   box-shadow: var(--shadow-lg);
 }
 
@@ -654,7 +654,7 @@ button:disabled {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: calc(var(--radius-lg) - 2px);
+  border-radius: var(--radius-lg);
 }
 
 .card-img.rarity-rare {
@@ -965,7 +965,7 @@ button:disabled {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: calc(var(--radius-sm) - 2px);
+  border-radius: var(--radius-sm);
 }
 
 @keyframes cardSlideIn {
@@ -983,7 +983,7 @@ button:disabled {
   transform: scale(2.6);
   z-index: 100;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 .revealed-row .mini-card.rarity-rare {
@@ -1071,14 +1071,14 @@ button:disabled {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: calc(var(--radius-sm) - 2px);
+  border-radius: var(--radius-sm);
 }
 
 .collection-area .mini-card:hover {
   transform: scale(2.6);
   z-index: 100;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 .collection-area .mini-card.rarity-rare {
@@ -1362,7 +1362,7 @@ button:disabled {
 }
 
 .card-front {
-  border: 3px solid rgba(255, 255, 255, 0.15);
+  border: none;
   display: flex;
   flex-direction: column;
 }
