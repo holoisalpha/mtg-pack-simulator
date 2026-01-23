@@ -73,9 +73,6 @@
       color: rgba(0,0,0,0.4);
     }
 
-    body.fleer-mode .pack-hint {
-      color: rgba(0,0,0,0.4);
-    }
 
     /* Full-screen app container */
     .app {
@@ -227,6 +224,17 @@
     .card.fleer-card img,
     .card-next.fleer-card img {
       border-radius: 8px;
+    }
+
+    /* Fleer price at top right to avoid player names */
+    .card.fleer-card .card-value {
+      bottom: auto;
+      top: 12px;
+      left: auto;
+      right: 12px;
+      transform: none;
+      font-size: 16px;
+      padding: 6px 12px;
     }
 
     .pack-hint {
