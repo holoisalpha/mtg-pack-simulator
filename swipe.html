@@ -134,14 +134,50 @@
       aspect-ratio: 5/7;
     }
 
+    /* Next card - sits underneath, revealed as you swipe */
+    .card-next {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0a0a0a;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transform: scale(0.92);
+      filter: brightness(0.7);
+      transition: transform 0.3s ease, filter 0.3s ease;
+      z-index: 1;
+      visibility: hidden;
+    }
+
+    .card-next img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      clip-path: inset(2% round 4%);
+    }
+
+    .card-next.peeking {
+      transition: none;
+    }
+
+    .card-next.rare {
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .card-next.power9 {
+      box-shadow: 0 0 50px rgba(147, 51, 234, 0.4), 0 0 80px rgba(255, 215, 0, 0.2);
+    }
+
+    /* Current card - on top */
     .card {
       position: absolute;
       inset: 0;
       border-radius: 16px;
       overflow: hidden;
-      background: #1a1a1a;
+      background: #0a0a0a;
       box-shadow: 0 15px 50px rgba(0,0,0,0.5);
       will-change: transform;
+      z-index: 2;
     }
 
     .card img {
@@ -149,6 +185,7 @@
       height: 100%;
       object-fit: cover;
       pointer-events: none;
+      clip-path: inset(2% round 4%);
     }
 
     .card.dragging {
@@ -396,12 +433,14 @@
       border-radius: 8px;
       overflow: hidden;
       background: #2a2a2a;
+      transition: transform 0.15s ease;
     }
 
     .mini-card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      clip-path: inset(2% round 3%);
     }
 
     .mini-card.empty {
@@ -411,6 +450,10 @@
 
     .mini-card.rare-mini {
       box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    .mini-card:not(.empty):active {
+      transform: scale(0.95);
     }
 
     .sheet-actions {
@@ -469,6 +512,7 @@
       max-width: 90vw;
       border-radius: 16px;
       margin-bottom: 24px;
+      clip-path: inset(2% round 4%);
     }
 
     .detail-name {
@@ -550,6 +594,11 @@
     <!-- Card Screen -->
     <div class="card-screen" id="cardScreen">
       <div class="card-wrapper" id="cardWrapper">
+        <!-- Next card preview (underneath) -->
+        <div class="card-next" id="cardNext">
+          <img src="" alt="Next Card" id="cardNextImg">
+        </div>
+        <!-- Current card (on top) -->
         <div class="card" id="card">
           <img src="" alt="Card" id="cardImg">
           <div class="card-value" id="cardValue">$0</div>
@@ -595,8 +644,8 @@
   <!-- Screen flash -->
   <div class="screen-flash" id="screenFlash"></div>
 
-  <script src="card-data.js"></script>
-  <script src="price-data.js?v=20260122"></script>
+  <script src="card-data.js?v=20260122b"></script>
+  <script src="price-data.js?v=20260122b"></script>
   <script>
     // ==================== STATE ====================
     const state = {
@@ -607,6 +656,7 @@
       isAnimating: false,
       isDragging: false,
       packOpened: false,
+      packComplete: false,
       sheetOpen: false,
       detailsOpen: false,
       touchStartX: 0,
@@ -627,6 +677,8 @@
       card: document.getElementById('card'),
       cardImg: document.getElementById('cardImg'),
       cardValue: document.getElementById('cardValue'),
+      cardNext: document.getElementById('cardNext'),
+      cardNextImg: document.getElementById('cardNextImg'),
       progressDots: document.getElementById('progressDots'),
       indRight: document.getElementById('indRight'),
       indUp: document.getElementById('indUp'),
@@ -676,12 +728,19 @@
       return [...commons, ...uncommons, rare];
     }
 
-    function getPrice(cardName) {
+    function getPrice(cardName, rarity) {
+      // Try specific card price first
       if (typeof getCardPrice === 'function') {
         const p = getCardPrice(cardName, setCode);
         if (p !== null) return p;
       }
-      return 5;
+      // Fall back to rarity-based default
+      if (typeof getDefaultPrice === 'function') {
+        return getDefaultPrice(setCode, rarity || 'common');
+      }
+      // Ultimate fallback based on Alpha prices
+      const defaults = { common: 150, uncommon: 400, rare: 1500 };
+      return defaults[rarity] || 150;
     }
 
     function formatPrice(price) {
@@ -711,6 +770,7 @@
       state.packValue = 0;
       state.revealed = [];
       state.packOpened = false;
+      state.packComplete = false;
       createProgressDots();
     }
 
@@ -731,6 +791,10 @@
 
       els.pack.classList.add('tearing');
 
+      // Pre-load first two cards before transition
+      const firstCard = state.cards[0];
+      els.cardImg.src = getImageUrl(firstCard.name);
+
       setTimeout(() => {
         state.packOpened = true;
         els.packScreen.classList.add('hidden');
@@ -741,14 +805,14 @@
     }
 
     // ==================== CARD DISPLAY ====================
-    function showCard(index) {
+    function showCard(index, skipAnimation = false) {
       if (index >= state.cards.length) {
         finishPack();
         return;
       }
 
       const card = state.cards[index];
-      const price = getPrice(card.name);
+      const price = getPrice(card.name, card.rarity);
       card.price = price;
 
       state.currentIndex = index;
@@ -758,6 +822,9 @@
       // Update card display
       els.cardImg.src = getImageUrl(card.name);
       els.cardValue.textContent = formatPrice(price);
+
+      // Pre-load next card underneath for peek effect
+      preloadNextCard(index + 1);
 
       // Determine animation type
       const isPower9 = card.isPowerNine;
@@ -770,6 +837,19 @@
         els.card.classList.add('power9');
       } else if (isRare) {
         els.card.classList.add('rare');
+      }
+
+      // Reset next card preview state
+      els.cardNext.classList.remove('peeking');
+      els.cardNext.style.transform = '';
+      els.cardNext.style.filter = '';
+
+      if (skipAnimation) {
+        // Skip animation when promoting from preview
+        els.cardValue.classList.add('visible');
+        state.isAnimating = false;
+        updateProgressDots(index);
+        return;
       }
 
       // Animate in
@@ -798,6 +878,54 @@
       updateProgressDots(index);
     }
 
+    function preloadNextCard(nextIndex) {
+      if (nextIndex >= state.cards.length) {
+        // No more cards - hide preview
+        els.cardNext.style.visibility = 'hidden';
+        return;
+      }
+
+      const nextCard = state.cards[nextIndex];
+      els.cardNext.style.visibility = 'visible';
+      els.cardNextImg.src = getImageUrl(nextCard.name);
+
+      // Apply rarity glow to preview
+      els.cardNext.classList.remove('rare', 'power9');
+      if (nextCard.isPowerNine) {
+        els.cardNext.classList.add('power9');
+      } else if (nextCard.rarity === 'rare') {
+        els.cardNext.classList.add('rare');
+      }
+    }
+
+    function updateNextCardPeek(progress) {
+      // progress: 0 = no swipe, 1 = full swipe threshold
+      // Scale from 0.92 to 1, brightness from 0.7 to 1
+      const scale = 0.92 + (0.08 * progress);
+      const brightness = 0.7 + (0.3 * progress);
+
+      els.cardNext.classList.add('peeking');
+      els.cardNext.style.transform = `scale(${scale})`;
+      els.cardNext.style.filter = `brightness(${brightness})`;
+    }
+
+    function resetCardPosition() {
+      // Snap current card back
+      els.card.style.transition = 'transform 0.25s ease';
+      els.card.style.transform = '';
+
+      // Snap next card back to preview state
+      els.cardNext.classList.remove('peeking');
+      els.cardNext.style.transition = 'transform 0.25s ease, filter 0.25s ease';
+      els.cardNext.style.transform = 'scale(0.92)';
+      els.cardNext.style.filter = 'brightness(0.7)';
+
+      setTimeout(() => {
+        els.card.style.transition = '';
+        els.cardNext.style.transition = '';
+      }, 250);
+    }
+
     function updateProgressDots(currentIdx) {
       const dots = els.progressDots.querySelectorAll('.dot');
       dots.forEach((dot, i) => {
@@ -811,7 +939,13 @@
       state.isAnimating = true;
       els.cardValue.classList.remove('visible');
 
-      // Set swipe direction
+      // Animate next card to full size immediately
+      els.cardNext.classList.remove('peeking');
+      els.cardNext.style.transition = 'transform 0.25s ease-out, filter 0.25s ease-out';
+      els.cardNext.style.transform = 'scale(1)';
+      els.cardNext.style.filter = 'brightness(1)';
+
+      // Set swipe direction for current card
       let transform;
       if (direction === 'up') {
         transform = 'translateY(-120vh) rotate(5deg)';
@@ -822,10 +956,46 @@
       els.card.style.setProperty('--swipe-transform', transform);
       els.card.classList.add('swipe-out');
 
+      // Haptic for the next card reveal
+      const nextCard = state.cards[state.currentIndex + 1];
+      if (nextCard) {
+        if (nextCard.isPowerNine) {
+          haptic('power9');
+          flashScreen('power9');
+        } else if (nextCard.rarity === 'rare' || state.currentIndex + 1 === state.cards.length - 1) {
+          haptic('heavy');
+          flashScreen('rare');
+        } else {
+          haptic('light');
+        }
+      }
+
       setTimeout(() => {
         els.card.classList.remove('swipe-out');
         els.card.style.transform = '';
-        showCard(state.currentIndex + 1);
+
+        // Promote next card: copy its image to current card
+        const nextIndex = state.currentIndex + 1;
+        if (nextIndex < state.cards.length) {
+          const nextCard = state.cards[nextIndex];
+          els.cardImg.src = getImageUrl(nextCard.name);
+
+          // Apply rarity to current card
+          els.card.classList.remove('rare', 'power9');
+          if (nextCard.isPowerNine) {
+            els.card.classList.add('power9');
+          } else if (nextCard.rarity === 'rare') {
+            els.card.classList.add('rare');
+          }
+        }
+
+        // Update state and show card (skip animation since we already showed it)
+        showCard(state.currentIndex + 1, true);
+
+        // Reset next card transition
+        setTimeout(() => {
+          els.cardNext.style.transition = '';
+        }, 50);
       }, 250);
     }
 
@@ -837,6 +1007,9 @@
     }
 
     function finishPack() {
+      state.packComplete = true;
+      state.isAnimating = false;
+
       // Mark all dots revealed
       const dots = els.progressDots.querySelectorAll('.dot');
       dots.forEach(dot => {
@@ -863,12 +1036,19 @@
         const mini = document.createElement('div');
         mini.className = 'mini-card';
         if (state.revealed[i]) {
+          const card = state.revealed[i];
           const img = document.createElement('img');
-          img.src = getImageUrl(state.revealed[i].name);
+          img.src = getImageUrl(card.name);
           mini.appendChild(img);
-          if (state.revealed[i].rarity === 'rare' || state.revealed[i].isPowerNine) {
+          if (card.rarity === 'rare' || card.isPowerNine) {
             mini.classList.add('rare-mini');
           }
+          // Click to enlarge
+          mini.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showCardFromSheet(card);
+          });
+          mini.style.cursor = 'pointer';
         } else {
           mini.classList.add('empty');
         }
@@ -908,6 +1088,10 @@
       els.progressDots.classList.remove('visible');
       els.card.classList.remove('rare', 'power9');
       els.cardValue.classList.remove('visible');
+      els.cardNext.style.visibility = 'hidden';
+      els.cardNext.classList.remove('rare', 'power9', 'peeking');
+      els.cardNext.style.transform = '';
+      els.cardNext.style.filter = '';
       els.btnNewPack.style.display = 'none';
       els.btnContinue.textContent = 'Continue';
 
@@ -919,12 +1103,19 @@
     function showDetails() {
       if (state.currentIndex >= state.cards.length) return;
       const card = state.cards[state.currentIndex];
+      showCardDetails(card);
+    }
 
+    function showCardFromSheet(card) {
+      showCardDetails(card);
+    }
+
+    function showCardDetails(card) {
       state.detailsOpen = true;
       els.detailImg.src = getImageUrl(card.name);
       els.detailName.textContent = card.name;
       els.detailSet.textContent = 'Alpha (LEA)';
-      els.detailPrice.textContent = formatPrice(card.price || getPrice(card.name));
+      els.detailPrice.textContent = formatPrice(card.price || getPrice(card.name, card.rarity));
       els.cardDetails.classList.add('visible');
     }
 
@@ -945,7 +1136,9 @@
       state.touchStartTime = Date.now();
       state.isDragging = true;
 
-      if (state.packOpened) {
+      if (state.packOpened && !state.packComplete) {
+        // Remove animation classes so drag transform works
+        els.card.classList.remove('deal-normal', 'deal-rare', 'deal-power9');
         els.card.classList.add('dragging');
       }
     }
@@ -966,10 +1159,21 @@
           const progress = Math.min(1, Math.abs(dy) / 150);
           els.pack.style.transform = `translateY(${dy * 0.5}px) scale(${1 + progress * 0.05})`;
         }
+      } else if (state.packComplete) {
+        // Pack complete - show down indicator for summary
+        els.indDown.classList.toggle('visible', dy > 50);
       } else if (state.currentIndex < state.cards.length) {
-        // Card drag
+        // Card drag - follows finger exactly
         const rotation = dx * 0.08;
         els.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
+
+        // Calculate swipe progress for peek effect (0 to 1)
+        const swipeDistance = Math.sqrt(dx * dx + dy * dy);
+        const threshold = 120; // pixels for full peek
+        const progress = Math.min(1, swipeDistance / threshold);
+
+        // Update next card peek - reveals as you swipe
+        updateNextCardPeek(progress);
 
         // Show indicators
         els.indRight.classList.toggle('visible', dx > 50);
@@ -1000,6 +1204,11 @@
         } else {
           els.pack.style.transform = '';
         }
+      } else if (state.packComplete) {
+        // Pack complete - swipe down to see summary again
+        if (dy > 50) {
+          showSheet(true);
+        }
       } else if (state.currentIndex < state.cards.length) {
         els.card.classList.remove('dragging');
 
@@ -1014,17 +1223,10 @@
         } else if (dy > 80) {
           // Swipe down - show sheet
           showSheet(false);
-          els.card.style.transform = '';
+          resetCardPosition();
         } else {
-          // Reset
-          els.card.style.transition = 'transform 0.2s ease';
-          els.card.style.transform = '';
-          setTimeout(() => els.card.style.transition = '', 200);
-        }
-      } else {
-        // Pack complete - swipe down for sheet
-        if (dy > 50) {
-          showSheet(true);
+          // Reset - snap back
+          resetCardPosition();
         }
       }
     }
