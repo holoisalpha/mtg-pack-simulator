@@ -938,10 +938,19 @@
   <script src="pokemon-data.js?v=20260123"></script>
   <script src="fleer-1986-data.js?v=20260123"></script>
   <script>
-    // Hide back button in embed mode
-    if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+    // Hide back button and total value in embed mode
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('embed') === 'true') {
       document.getElementById('backLink').style.display = 'none';
+      document.getElementById('totalValue').style.display = 'none';
     }
+
+    // Parse allowed modes from URL (e.g. ?modes=fleer,pokemon)
+    const modesParam = urlParams.get('modes');
+    const ALLOWED_MODES = modesParam
+      ? modesParam.split(',').filter(m => ['mtg', 'pokemon', 'fleer'].includes(m))
+      : ['mtg', 'pokemon', 'fleer'];
+    const INITIAL_MODE = ALLOWED_MODES[0] || 'mtg';
 
     // ==================== GAME CONFIG ====================
     const GAME_CONFIG = {
@@ -979,7 +988,7 @@
 
     // ==================== STATE ====================
     const state = {
-      gameMode: 'mtg',
+      gameMode: INITIAL_MODE,
       cards: [],
       currentIndex: 0,
       packValue: 0,
@@ -1195,10 +1204,10 @@
 
     // ==================== MODE SWITCHING ====================
     function switchGameMode() {
-      // Cycle through: mtg -> pokemon -> fleer -> mtg
-      const modes = ['mtg', 'pokemon', 'fleer'];
-      const currentIndex = modes.indexOf(state.gameMode);
-      state.gameMode = modes[(currentIndex + 1) % modes.length];
+      // Only cycle through allowed modes
+      if (ALLOWED_MODES.length <= 1) return; // No switching if only one mode
+      const currentIndex = ALLOWED_MODES.indexOf(state.gameMode);
+      state.gameMode = ALLOWED_MODES[(currentIndex + 1) % ALLOWED_MODES.length];
       updateUIForMode();
       initPack(); // Re-generate pack for new mode
       haptic('medium');
@@ -1312,6 +1321,17 @@
 
       // Update running total
       els.totalAmount.textContent = formatPrice(state.packValue);
+
+      // Send card reveal to parent (for embedded mode)
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'PACK_BREAKER_CARD_REVEALED',
+          card: { name: card.name, rarity: card.rarity, price: price },
+          packValue: state.packValue,
+          cardsRevealed: state.revealed.length,
+          totalCards: state.cards.length
+        }, '*');
+      }
 
       // Update card display
       els.cardImg.src = getImageUrl(card);
@@ -1527,6 +1547,24 @@
         dot.classList.add('revealed');
       });
 
+      // Send pack data to parent window (for embed mode)
+      if (window.parent !== window) {
+        console.log('📤 Sending pack data to parent:', state.packValue);
+        window.parent.postMessage({
+          type: 'PACK_BREAKER_PACK_COMPLETE',
+          mode: state.currentMode,
+          packValue: state.packValue,
+          cards: state.cards.map(card => ({
+            name: card.name,
+            rarity: card.rarity,
+            price: card.price || 0,
+            image: card.image
+          }))
+        }, '*');
+      } else {
+        console.log('⚠️ Not in iframe, skipping postMessage');
+      }
+
       setTimeout(() => {
         showSheet(true);
       }, 300);
@@ -1605,6 +1643,17 @@
       // Update totals
       els.totalAmount.textContent = formatPrice(state.packValue);
       els.sheetValue.textContent = formatPrice(state.packValue);
+
+      // Send card reveal to parent (for embedded mode)
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'PACK_BREAKER_CARD_REVEALED',
+          card: { name: card.name, rarity: card.rarity, price: price },
+          packValue: state.packValue,
+          cardsRevealed: state.revealed.length,
+          totalCards: state.cards.length
+        }, '*');
+      }
 
       // Haptic feedback
       const config = GAME_CONFIG[state.gameMode];
@@ -1891,7 +1940,15 @@
       goBackToSplash();
     });
 
+    // Listen for messages from parent (for embed mode)
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'GO_TO_SPLASH') {
+        goBackToSplash();
+      }
+    });
+
     // ==================== INIT ====================
+    updateUIForMode(); // Set correct splash screen for initial mode
     initPack();
   </script>
 </body>
